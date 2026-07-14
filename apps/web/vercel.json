@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd ../.. && pnpm --filter @fiberscope/web build",
+  "buildCommand": "cd ../.. && pnpm --filter @fiberscope/web... build",
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate"
 }

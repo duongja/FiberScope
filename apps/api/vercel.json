@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd ../.. && pnpm --filter @fiberscope/api build",
+  "buildCommand": "cd ../.. && pnpm --filter @fiberscope/api... build",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate",
   "functions": {
     "api/[...path].ts": {

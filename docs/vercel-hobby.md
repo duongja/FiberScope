@@ -30,11 +30,11 @@ Create a Vercel project from the GitHub repository and set:
 ```txt
 Root Directory: apps/api
 Framework Preset: Other
-Build Command: cd ../.. && pnpm --filter @fiberscope/api build
+Build Command: cd ../.. && pnpm --filter @fiberscope/api... build
 Install Command: cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate
 ```
 
-The repository includes `apps/api/vercel.json`, so Vercel should pick up the function and rewrite settings automatically.
+The repository includes `apps/api/vercel.json`, so Vercel should pick up the function and rewrite settings automatically. The trailing `...` in the build filter is required because this is a monorepo: it builds the API package and its workspace dependencies on a cold Vercel machine.
 
 Set these environment variables in the API project:
 
@@ -84,7 +84,7 @@ Create a second Vercel project from the same GitHub repository and set:
 ```txt
 Root Directory: apps/web
 Framework Preset: Next.js
-Build Command: cd ../.. && pnpm --filter @fiberscope/web build
+Build Command: cd ../.. && pnpm --filter @fiberscope/web... build
 Install Command: cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate
 ```
 

@@ -8,6 +8,15 @@ import { numberQuery, stringQuery } from "../query.js";
 import { jsonSafe } from "../serialize.js";
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
+  const serviceInfo = () => ({
+    name: "FiberScope API",
+    status: "ok",
+    health: "/health",
+    openapi: "/api/openapi.json",
+    summary: "/api/network/summary",
+    graphExport: "/api/export/graph.json",
+  });
+
   const health = async () => {
     const [nodeCount, channelCount] = await Promise.all([
       prisma.fiberNode.count(),
@@ -17,6 +26,8 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   };
 
   app.get("/health", health);
+  app.get("/", serviceInfo);
+  app.get("/api", serviceInfo);
   app.get("/api/health", health);
 
   app.get("/api/network/summary", async () => {

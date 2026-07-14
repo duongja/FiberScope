@@ -34,7 +34,7 @@ Build Command: cd ../.. && pnpm --filter @fiberscope/api... build
 Install Command: cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate
 ```
 
-The repository includes `apps/api/vercel.json`, so Vercel should pick up the function and rewrite settings automatically. The trailing `...` in the build filter is required because this is a monorepo: it builds the API package and its workspace dependencies on a cold Vercel machine.
+The repository includes `apps/api/vercel.json`, so Vercel should pick up the function and rewrite settings automatically. The API uses one Vercel Serverless Function and rewrites all API paths into that function to stay within the Hobby plan limit. The trailing `...` in the build filter is required because this is a monorepo: it builds the API package and its workspace dependencies on a cold Vercel machine.
 
 Set these environment variables in the API project:
 

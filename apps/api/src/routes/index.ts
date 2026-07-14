@@ -28,6 +28,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   app.get("/health", health);
   app.get("/", serviceInfo);
   app.get("/api", serviceInfo);
+  app.get("/api/", serviceInfo);
   app.get("/api/health", health);
 
   app.get("/api/network/summary", async () => {

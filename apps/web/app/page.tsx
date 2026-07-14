@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { NetworkMap } from "../components/network-map";
-import { NetworkNodesPanel, type NodeRecord } from "../components/node-sections";
+import {
+  NetworkNodesPanel,
+  type NodeRecord,
+} from "../components/node-sections";
 import { StatCard } from "../components/stat-card";
 import { apiGet, formatCkb, truncateMiddle } from "../lib/api";
 
@@ -45,15 +48,15 @@ interface ChannelsResponse {
 
 export default async function HomePage() {
   const summary = await apiGet<Summary>("/api/network/summary");
-  const [nodes, recentChannels, ...assetChannelPages] = await Promise.all([
+  const [nodes, channels] = await Promise.all([
     apiGet<NodesResponse>("/api/nodes?limit=100"),
-    apiGet<ChannelsResponse>("/api/channels?limit=10"),
-    ...summary.capacityByAsset.map((asset) =>
-      apiGet<ChannelsResponse>(`/api/channels?asset=${encodeURIComponent(asset.symbol)}&limit=80`),
-    ),
+    apiGet<ChannelsResponse>("/api/channels?limit=200"),
   ]);
-  const mapChannels = dedupeChannels(assetChannelPages.flatMap((page) => page.channels));
-  const ckbCapacity = summary.capacityByAsset.find((asset) => asset.symbol === "CKB")?.capacity ?? "0";
+  const recentChannels = channels.channels.slice(0, 10);
+  const mapChannels = dedupeChannels(channels.channels);
+  const ckbCapacity =
+    summary.capacityByAsset.find((asset) => asset.symbol === "CKB")?.capacity ??
+    "0";
 
   return (
     <>
@@ -61,16 +64,29 @@ export default async function HomePage() {
         <div>
           <h1>Fiber network readiness</h1>
           <p>
-            Public graph visibility, liquidity direction, route estimates, and wallet-builder APIs for Fiber Network.
+            Public graph visibility, liquidity direction, route estimates, and
+            wallet-builder APIs for Fiber Network.
           </p>
         </div>
         <span className="badge green">Public graph estimate</span>
       </div>
 
       <section className="grid cols-4">
-        <StatCard label="Public nodes" value={summary.nodeCount} detail={`${summary.staleNodeCount} stale`} />
-        <StatCard label="Public channels" value={summary.channelCount} detail={`${summary.staleChannelCount} stale`} />
-        <StatCard label="Enabled directions" value={summary.enabledDirectionCount} detail={`${summary.disabledDirectionCount} disabled`} />
+        <StatCard
+          label="Public nodes"
+          value={summary.nodeCount}
+          detail={`${summary.staleNodeCount} stale`}
+        />
+        <StatCard
+          label="Public channels"
+          value={summary.channelCount}
+          detail={`${summary.staleChannelCount} stale`}
+        />
+        <StatCard
+          label="Enabled directions"
+          value={summary.enabledDirectionCount}
+          detail={`${summary.disabledDirectionCount} disabled`}
+        />
         <StatCard
           label="Reachable nodes"
           value={`${summary.reachability.reachableNodeCount}/${summary.nodeCount}`}
@@ -79,22 +95,44 @@ export default async function HomePage() {
       </section>
 
       <section style={{ marginTop: 16 }}>
-        <NetworkMap nodes={nodes.nodes} channels={mapChannels} summary={summary} />
+        <NetworkMap
+          nodes={nodes.nodes}
+          channels={mapChannels}
+          summary={summary}
+        />
       </section>
 
       <section className="grid cols-2" style={{ marginTop: 16 }}>
         <div className="card">
           <h2 style={{ marginTop: 0 }}>Capacity by asset</h2>
-          <p className="muted">Total public CKB capacity: {formatCkb(ckbCapacity)}</p>
+          <p className="muted">
+            Total public CKB capacity: {formatCkb(ckbCapacity)}
+          </p>
           <div className="grid">
             {summary.capacityByAsset.map((asset) => (
-              <div className="card" style={{ boxShadow: "none" }} key={asset.assetId}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+              <div
+                className="card"
+                style={{ boxShadow: "none" }}
+                key={asset.assetId}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                  }}
+                >
                   <div>
                     <strong>{asset.symbol}</strong>
-                    <div className="muted">{asset.kind} · {asset.channelCount} channels</div>
+                    <div className="muted">
+                      {asset.kind} · {asset.channelCount} channels
+                    </div>
                   </div>
-                  <div className="mono">{asset.symbol === "CKB" ? formatCkb(asset.capacity) : asset.capacity}</div>
+                  <div className="mono">
+                    {asset.symbol === "CKB"
+                      ? formatCkb(asset.capacity)
+                      : asset.capacity}
+                  </div>
                 </div>
               </div>
             ))}
@@ -117,11 +155,22 @@ export default async function HomePage() {
                 </tr>
               </thead>
               <tbody>
-                {recentChannels.channels.map((channel) => (
+                {recentChannels.map((channel) => (
                   <tr key={channel.channelOutpoint}>
-                    <td><Link className="mono" href={`/channels/${encodeURIComponent(channel.channelOutpoint)}`}>{truncateMiddle(channel.channelOutpoint)}</Link></td>
+                    <td>
+                      <Link
+                        className="mono"
+                        href={`/channels/${encodeURIComponent(channel.channelOutpoint)}`}
+                      >
+                        {truncateMiddle(channel.channelOutpoint)}
+                      </Link>
+                    </td>
                     <td>{channel.asset.symbol}</td>
-                    <td>{channel.asset.symbol === "CKB" ? formatCkb(channel.capacity) : channel.capacity}</td>
+                    <td>
+                      {channel.asset.symbol === "CKB"
+                        ? formatCkb(channel.capacity)
+                        : channel.capacity}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -133,7 +182,9 @@ export default async function HomePage() {
   );
 }
 
-function dedupeChannels(channels: ChannelsResponse["channels"]): ChannelsResponse["channels"] {
+function dedupeChannels(
+  channels: ChannelsResponse["channels"],
+): ChannelsResponse["channels"] {
   const seen = new Set<string>();
   return channels.filter((channel) => {
     if (seen.has(channel.channelOutpoint)) {

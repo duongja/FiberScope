@@ -107,18 +107,22 @@ export function estimateRoute(input: EstimateRouteInput): RouteEstimateResponse 
     },
   ];
   const completed: CandidateState[] = [];
+  const bestCostByNode = new Map<string, bigint>([[input.sourcePubkey, 0n]]);
   const maxDepth = 8;
+  const maxExpandedStates = 10_000;
+  let expandedStates = 0;
 
-  while (queue.length > 0 && completed.length < 3) {
+  while (queue.length > 0 && completed.length === 0 && expandedStates < maxExpandedStates) {
     queue.sort((a, b) => Number(a.cost - b.cost));
     const current = queue.shift();
     if (!current) {
       break;
     }
+    expandedStates += 1;
 
     if (current.node === input.targetPubkey) {
       completed.push(current);
-      continue;
+      break;
     }
 
     if (current.path.length >= maxDepth) {
@@ -151,11 +155,18 @@ export function estimateRoute(input: EstimateRouteInput): RouteEstimateResponse 
         confidenceImpact += 0.08;
       }
 
+      const nextCost = current.cost + hopFee + 1_000n;
+      const knownCost = bestCostByNode.get(direction.toPubkey);
+      if (knownCost !== undefined && knownCost <= nextCost) {
+        continue;
+      }
+      bestCostByNode.set(direction.toPubkey, nextCost);
+
       const visited = new Set(current.visited);
       visited.add(direction.toPubkey);
       queue.push({
         node: direction.toPubkey,
-        cost: current.cost + hopFee + 1_000n,
+        cost: nextCost,
         fee: current.fee + hopFee,
         confidence: Math.max(0.05, current.confidence - confidenceImpact),
         warnings: [...current.warnings, ...hopWarnings],
@@ -177,6 +188,11 @@ export function estimateRoute(input: EstimateRouteInput): RouteEstimateResponse 
   }
 
   if (completed.length === 0) {
+    if (expandedStates >= maxExpandedStates) {
+      return failure(input, "Route search exceeded the public graph search budget", [
+        "Try a smaller amount, choose a more connected source or target, or retry with route hints.",
+      ]);
+    }
     return failure(input, "No route was found in the public graph", [
       "Open a channel with a better connected peer or ask the receiver for route hints.",
     ]);

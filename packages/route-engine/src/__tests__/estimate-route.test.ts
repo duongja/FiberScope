@@ -90,4 +90,47 @@ describe("estimateRoute", () => {
 
     expect(result.canPay).toBe(false);
   });
+
+  it("returns quickly on a dense cyclic graph", () => {
+    const denseNodes = Array.from({ length: 48 }, (_, index) => ({
+      pubkey: `node-${index}`,
+    }));
+    const denseChannels = [];
+    const denseDirections = [];
+
+    for (let from = 0; from < denseNodes.length; from += 1) {
+      for (let offset = 1; offset <= 6; offset += 1) {
+        const to = (from + offset) % denseNodes.length;
+        const channelOutpoint = `channel-${from}-${to}`;
+        denseChannels.push({
+          channelOutpoint,
+          assetId: "ckb",
+          capacity: "1000000",
+        });
+        denseDirections.push({
+          channelOutpoint,
+          fromPubkey: `node-${from}`,
+          toPubkey: `node-${to}`,
+          enabled: true,
+          outboundLiquidity: "1000000",
+          feeRate: "1000",
+          tlcMinimumValue: "1",
+        });
+      }
+    }
+
+    const startedAt = Date.now();
+    const result = estimateRoute({
+      sourcePubkey: "node-0",
+      targetPubkey: "node-47",
+      assetId: "ckb",
+      amount: "100",
+      nodes: denseNodes,
+      channels: denseChannels,
+      directions: denseDirections,
+    });
+
+    expect(result.canPay).toBe(true);
+    expect(Date.now() - startedAt).toBeLessThan(500);
+  });
 });

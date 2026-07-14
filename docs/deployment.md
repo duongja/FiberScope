@@ -85,6 +85,19 @@ FIBERSCOPE_USE_SAMPLE_DATA="false"
 
 The worker stores source-level snapshots and errors. If one source fails, the API can continue serving cached data and Observability will show the failure.
 
+## Vercel Hobby Deployment
+
+Use Vercel for the web UI and request/response API, backed by an external Postgres database. Keep the Fiber node and polling worker outside Vercel, then refresh production data with:
+
+```sh
+DATABASE_URL="postgresql://..." \
+FIBER_RPC_URLS="https://your-fiber-rpc.example/" \
+FIBERSCOPE_USE_SAMPLE_DATA="false" \
+pnpm ingest:once
+```
+
+See [Vercel Hobby deployment](vercel-hobby.md) for the full two-project setup.
+
 ## Docker Compose Live Mode
 
 When Fiber RPC runs on the host and FiberScope runs in Docker Compose on Linux, use:

@@ -8,13 +8,16 @@ import { numberQuery, stringQuery } from "../query.js";
 import { jsonSafe } from "../serialize.js";
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
-  app.get("/health", async () => {
+  const health = async () => {
     const [nodeCount, channelCount] = await Promise.all([
       prisma.fiberNode.count(),
       prisma.fiberChannel.count(),
     ]);
     return { ok: true, nodeCount, channelCount };
-  });
+  };
+
+  app.get("/health", health);
+  app.get("/api/health", health);
 
   app.get("/api/network/summary", async () => {
     const [nodes, channels, directions, assets, snapshot, reachability] =

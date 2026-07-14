@@ -12,7 +12,9 @@ import { refreshNodeScores } from "./score.js";
 const log = pino({ name: "fiberscope-worker" });
 const env = readEnv();
 
-async function pollGraph(): Promise<void> {
+async function pollGraph(): Promise<number> {
+  let successfulSources = 0;
+
   if (env.useSampleData) {
     log.info("ingesting sample Fiber graph");
     await upsertGraphSnapshot({
@@ -21,6 +23,7 @@ async function pollGraph(): Promise<void> {
       sourceUrl: "sample://fiber",
       graph: sampleGraph,
     });
+    successfulSources += 1;
   }
 
   for (const url of env.fiberRpcUrls) {
@@ -34,9 +37,16 @@ async function pollGraph(): Promise<void> {
         sourceUrl: url,
         graph,
       });
-      log.info({ url, nodes: graph.nodes.length, channels: graph.channels.length }, "Fiber graph ingested");
+      successfulSources += 1;
+      log.info(
+        { url, nodes: graph.nodes.length, channels: graph.channels.length },
+        "Fiber graph ingested",
+      );
     } catch (error) {
-      log.warn({ url, error }, "Fiber graph ingestion failed");
+      log.warn(
+        { url, error: errorDetails(error) },
+        "Fiber graph ingestion failed",
+      );
       await prisma.ingestionSource.upsert({
         where: { url },
         update: {
@@ -54,6 +64,7 @@ async function pollGraph(): Promise<void> {
   }
 
   await refreshNodeScores(prisma);
+  return successfulSources;
 }
 
 async function enrichCkb(): Promise<void> {
@@ -81,9 +92,18 @@ async function probeReachability(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  await pollGraph();
+  const successfulSources = await pollGraph();
   await enrichCkb();
   await probeReachability();
+
+  if (env.runOnce) {
+    if (successfulSources === 0) {
+      throw new Error("one-shot ingestion did not ingest any graph source");
+    }
+    log.info("one-shot ingestion completed");
+    await prisma.$disconnect();
+    return;
+  }
 
   setInterval(() => {
     pollGraph().catch((error) => log.error({ error }, "graph poll failed"));
@@ -94,7 +114,9 @@ async function main(): Promise<void> {
   }, env.ckbEnrichIntervalSeconds * 1000);
 
   setInterval(() => {
-    probeReachability().catch((error) => log.error({ error }, "reachability probe failed"));
+    probeReachability().catch((error) =>
+      log.error({ error }, "reachability probe failed"),
+    );
   }, env.reachabilityProbeIntervalSeconds * 1000);
 }
 
@@ -106,8 +128,20 @@ function safeSourceName(url: string): string {
   }
 }
 
+function errorDetails(error: unknown): Record<string, unknown> {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      code: "code" in error ? error.code : undefined,
+      data: "data" in error ? error.data : undefined,
+    };
+  }
+  return { message: String(error) };
+}
+
 main().catch(async (error) => {
-  log.error({ error }, "worker crashed");
+  log.error({ error: errorDetails(error) }, "worker crashed");
   await prisma.$disconnect();
   process.exit(1);
 });

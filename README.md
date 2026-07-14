@@ -74,6 +74,7 @@ See [docs/run-modes.md](docs/run-modes.md) for the full node dependency model, i
 For hackathon judging and operator deployment:
 
 - [Codespaces demo runbook](docs/codespaces-demo.md)
+- [Vercel Hobby deployment](docs/vercel-hobby.md)
 - [Submission draft](docs/hackathon-submission.md)
 - [Deployment runbook](docs/deployment.md)
 - [Demo script](docs/demo.md)

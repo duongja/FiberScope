@@ -19,6 +19,7 @@
     "dev:live": "scripts/dev-profile.sh live-node",
     "fiber:testnet": "scripts/start-fiber-testnet-node.sh",
     "format": "prettier --write .",
+    "ingest:once": "pnpm --filter @fiberscope/worker ingest:once",
     "lint": "turbo lint",
     "seed": "tsx prisma/seed.ts",
     "smoke:live": "scripts/smoke-live.sh",

@@ -1,17 +1,6 @@
-import cors from "@fastify/cors";
-import Fastify from "fastify";
-import { registerRoutes } from "./routes/index.js";
+import { buildApp } from "./app.js";
 
-const app = Fastify({
-  logger: {
-    level: process.env.LOG_LEVEL ?? "info",
-  },
-});
-
-await app.register(cors, {
-  origin: true,
-});
-await registerRoutes(app);
+const app = await buildApp();
 
 const port = Number(process.env.API_PORT ?? 8787);
 const host = process.env.API_HOST ?? "0.0.0.0";

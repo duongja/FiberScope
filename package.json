@@ -9,6 +9,7 @@
     "codespaces:demo": "scripts/codespaces-start-demo.sh demo",
     "codespaces:health": "scripts/codespaces-health.sh",
     "codespaces:live": "scripts/codespaces-start-demo.sh live-node",
+    "codespaces:node": "scripts/codespaces-node-up.sh",
     "codespaces:start": "scripts/codespaces-start-demo.sh",
     "codespaces:stop": "scripts/codespaces-stop-demo.sh",
     "db:generate": "prisma generate",

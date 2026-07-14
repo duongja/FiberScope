@@ -21,6 +21,31 @@ pnpm codespaces:start
 
 This defaults to live-node mode. It starts the disposable Fiber node, ingests public Fiber graph data, and starts the UI.
 
+## Start Only The Fiber Node
+
+For the Vercel-hosted API/web setup, you can keep only the Fiber node running in Codespaces:
+
+```sh
+pnpm codespaces:node
+```
+
+This starts the Dockerized testnet Fiber node with persisted data under `.codespaces-runtime/fiber-node`, tries to mark port `8227` public, prints the public RPC URL, and keeps a health heartbeat in the terminal.
+
+To start it and return to the shell immediately:
+
+```sh
+pnpm codespaces:node --detach
+```
+
+Use the printed public URL as `FIBER_RPC_URLS` when refreshing the hosted database:
+
+```sh
+DATABASE_URL="postgresql://..." \
+FIBER_RPC_URLS="https://YOUR-CODESPACE-8227.app.github.dev" \
+FIBERSCOPE_USE_SAMPLE_DATA="false" \
+pnpm ingest:once
+```
+
 For sample data only:
 
 ```sh
@@ -35,7 +60,7 @@ In the Codespaces **Ports** tab:
 - Set the API port public too if judges will use route estimates or diagnostics from the browser:
   - `8788` for live-node mode.
   - `8787` for sample demo mode.
-- Keep port `8227` private. It is the Fiber node RPC endpoint.
+- Keep port `8227` private for the full Codespaces demo unless an external hosted worker/API needs to ingest directly from the node. If you use `pnpm codespaces:node` for the Vercel-hosted setup, it tries to mark `8227` public and prints the public RPC URL.
 
 The start script prints the expected public web and API URLs. Codespaces URLs usually look like:
 

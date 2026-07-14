@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fiberscope
+      POSTGRES_PASSWORD: fiberscope
+      POSTGRES_DB: fiberscope
+    ports:
+      - "5432:5432"
+    volumes:
+      - fiberscope-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fiberscope"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    image: node:22-alpine
+    working_dir: /workspace
+    command: sh -c "corepack enable && pnpm install && pnpm db:generate && pnpm --filter @fiberscope/api dev"
+    environment:
+      DATABASE_URL: postgresql://fiberscope:fiberscope@postgres:5432/fiberscope?schema=${FIBERSCOPE_DB_SCHEMA:-public}
+      REDIS_URL: redis://redis:6379
+      API_PORT: ${API_PORT:-8787}
+    ports:
+      - "${API_PORT:-8787}:${API_PORT:-8787}"
+    volumes:
+      - .:/workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  worker:
+    image: node:22-alpine
+    working_dir: /workspace
+    command: sh -c "corepack enable && pnpm install && pnpm db:generate && pnpm db:push && pnpm --filter @fiberscope/worker dev"
+    environment:
+      DATABASE_URL: postgresql://fiberscope:fiberscope@postgres:5432/fiberscope?schema=${FIBERSCOPE_DB_SCHEMA:-public}
+      REDIS_URL: redis://redis:6379
+      FIBER_RPC_URLS: ${FIBER_RPC_URLS:-}
+      FIBER_GRAPH_POLL_INTERVAL_SECONDS: ${FIBER_GRAPH_POLL_INTERVAL_SECONDS:-60}
+      FIBERSCOPE_USE_SAMPLE_DATA: ${FIBERSCOPE_USE_SAMPLE_DATA:-true}
+      CKB_RPC_URL: ${CKB_RPC_URL:-https://testnet.ckb.dev/rpc}
+      CKB_INDEXER_URL: ${CKB_INDEXER_URL:-https://testnet.ckb.dev/indexer}
+      CKB_EXPLORER_BASE_URL: ${CKB_EXPLORER_BASE_URL:-https://pudge.explorer.nervos.org}
+      CKB_ENRICH_INTERVAL_SECONDS: ${CKB_ENRICH_INTERVAL_SECONDS:-180}
+      FIBERSCOPE_ENABLE_REACHABILITY_PROBES: ${FIBERSCOPE_ENABLE_REACHABILITY_PROBES:-false}
+      FIBERSCOPE_REACHABILITY_PROBE_INTERVAL_SECONDS: ${FIBERSCOPE_REACHABILITY_PROBE_INTERVAL_SECONDS:-300}
+      FIBERSCOPE_REACHABILITY_TIMEOUT_MS: ${FIBERSCOPE_REACHABILITY_TIMEOUT_MS:-2500}
+      FIBERSCOPE_REACHABILITY_PROBE_LIMIT: ${FIBERSCOPE_REACHABILITY_PROBE_LIMIT:-50}
+    volumes:
+      - .:/workspace
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    image: node:22-alpine
+    working_dir: /workspace
+    command: sh -c "corepack enable && pnpm install && pnpm --filter @fiberscope/web dev"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8787}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      - .:/workspace
+    depends_on:
+      - api
+
+volumes:
+  fiberscope-postgres:

@@ -1,0 +1,37 @@
+{
+  "name": "FiberScope",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest"
+    }
+  },
+  "forwardPorts": [3000, 8787, 8788, 8227],
+  "portsAttributes": {
+    "3000": {
+      "label": "FiberScope web",
+      "onAutoForward": "openPreview"
+    },
+    "8787": {
+      "label": "FiberScope demo API",
+      "onAutoForward": "notify"
+    },
+    "8788": {
+      "label": "FiberScope live API",
+      "onAutoForward": "notify"
+    },
+    "8227": {
+      "label": "Fiber node RPC",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "corepack enable && pnpm install --frozen-lockfile && pnpm db:generate",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Prisma.prisma",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

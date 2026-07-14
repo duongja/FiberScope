@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AssetKind {
+  CKB
+  UDT
+  UNKNOWN
+}
+
+enum OutpointStatus {
+  LIVE
+  SPENT
+  UNKNOWN
+  UNPARSEABLE
+}
+
+enum SnapshotStatus {
+  STARTED
+  COMPLETED
+  FAILED
+}
+
+model IngestionSource {
+  id          String          @id @default(cuid())
+  name        String
+  url         String          @unique
+  network     String          @default("testnet")
+  lastPollAt  DateTime?
+  lastError   String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  snapshots   GraphSnapshot[]
+}
+
+model GraphSnapshot {
+  id           String         @id @default(cuid())
+  sourceId     String
+  source       IngestionSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  status       SnapshotStatus @default(STARTED)
+  nodeCount    Int            @default(0)
+  channelCount Int            @default(0)
+  error        String?
+  startedAt    DateTime       @default(now())
+  completedAt  DateTime?
+
+  @@index([sourceId, startedAt])
+}
+
+model Asset {
+  id            String         @id
+  kind          AssetKind      @default(UNKNOWN)
+  symbol        String
+  chainHash     String?
+  udtTypeScript Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  channels      FiberChannel[]
+}
+
+model FiberNode {
+  pubkey                         String              @id
+  nodeName                       String
+  version                        String?
+  addresses                      Json
+  features                       Json
+  chainHash                      String?
+  autoAcceptMinCkbFundingAmount  String?
+  udtCfgInfos                    Json?
+  announcedTimestamp             BigInt?
+  firstSeenAt                    DateTime            @default(now())
+  lastSeenAt                     DateTime            @default(now())
+  lastAnnouncedAt                DateTime?
+  stale                          Boolean             @default(false)
+  score                          NodeScore?
+  probes                         ReachabilityProbe[]
+
+  @@index([lastSeenAt])
+  @@index([stale])
+}
+
+model FiberChannel {
+  channelOutpoint  String             @id
+  node1Pubkey      String
+  node2Pubkey      String
+  capacity         String
+  chainHash        String?
+  assetId          String
+  asset            Asset              @relation(fields: [assetId], references: [id])
+  udtTypeScript    Json?
+  createdTimestamp BigInt?
+  firstSeenAt      DateTime           @default(now())
+  lastSeenAt       DateTime           @default(now())
+  stale            Boolean            @default(false)
+  directions       ChannelDirection[]
+  ckbStatus        CkbOutpointStatus?
+
+  @@index([node1Pubkey])
+  @@index([node2Pubkey])
+  @@index([assetId])
+  @@index([lastSeenAt])
+  @@index([stale])
+}
+
+model ChannelDirection {
+  id                String       @id @default(cuid())
+  channelOutpoint   String
+  channel           FiberChannel @relation(fields: [channelOutpoint], references: [channelOutpoint], onDelete: Cascade)
+  fromPubkey        String
+  toPubkey          String
+  enabled           Boolean      @default(false)
+  outboundLiquidity String?
+  tlcExpiryDelta    BigInt?
+  tlcMinimumValue   String?
+  feeRate           BigInt?
+  updatedTimestamp  BigInt?
+  lastSeenAt        DateTime     @default(now())
+
+  @@unique([channelOutpoint, fromPubkey, toPubkey])
+  @@index([fromPubkey])
+  @@index([toPubkey])
+  @@index([enabled])
+}
+
+model CkbOutpointStatus {
+  channelOutpoint String         @id
+  channel         FiberChannel   @relation(fields: [channelOutpoint], references: [channelOutpoint], onDelete: Cascade)
+  txHash          String?
+  outputIndex     Int?
+  status          OutpointStatus @default(UNKNOWN)
+  blockNumber     BigInt?
+  blockTimestamp  DateTime?
+  spentByTxHash   String?
+  explorerUrl     String?
+  error           String?
+  lastCheckedAt   DateTime       @default(now())
+}
+
+model ReachabilityProbe {
+  id         String    @id @default(cuid())
+  nodePubkey String
+  node       FiberNode @relation(fields: [nodePubkey], references: [pubkey], onDelete: Cascade)
+  address    String
+  success    Boolean
+  latencyMs  Int?
+  error      String?
+  checkedAt  DateTime  @default(now())
+
+  @@index([nodePubkey, checkedAt])
+}
+
+model NodeScore {
+  nodePubkey        String    @id
+  node              FiberNode @relation(fields: [nodePubkey], references: [pubkey], onDelete: Cascade)
+  routingScore      Float     @default(0)
+  liquidityScore    Float     @default(0)
+  reachabilityScore Float     @default(0)
+  updatedAt         DateTime  @updatedAt
+}
+
+model RouteEstimate {
+  id                 String   @id @default(cuid())
+  sourcePubkey       String
+  targetPubkey       String
+  assetId            String
+  amount             String
+  canPay             Boolean
+  confidence         Float
+  estimatedFee       String
+  hopCount           Int
+  warnings           Json
+  recommendedActions Json
+  route              Json
+  createdAt          DateTime @default(now())
+
+  @@index([sourcePubkey, targetPubkey, assetId, createdAt])
+}

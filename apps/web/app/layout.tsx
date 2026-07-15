@@ -35,11 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="shell">
           <aside className="sidebar">
             <Link className="brand" href="/">
-              <div className="brand-mark">FS</div>
-              <div>
-                <strong>FiberScope</strong>
-                <span>Network intelligence</span>
-              </div>
+              <strong>FiberScope</strong>
+              <span>Network intelligence</span>
             </Link>
             <nav className="nav" aria-label="Primary">
               {nav.map((item) => {

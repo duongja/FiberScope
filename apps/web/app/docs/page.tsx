@@ -1,4 +1,5 @@
 import { apiUrl } from "../../lib/api";
+import { CopyableCode } from "../../components/copyable-code";
 import { DocsHeader, DocsNav } from "./_shared";
 
 export default function DocsPage() {
@@ -26,7 +27,7 @@ export default function DocsPage() {
         </div>
         <div className="card docs-base-card">
           <h2>Base URL</h2>
-          <pre>{apiUrl("")}</pre>
+          <CopyableCode code={apiUrl("")} />
           <p className="muted">
             Use the HTTP API directly or generate a client from the OpenAPI
             contract.

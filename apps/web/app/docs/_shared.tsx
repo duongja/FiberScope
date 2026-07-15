@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CopyableCode } from "../../components/copyable-code";
 import { apiUrl } from "../../lib/api";
 
 export const sourcePubkey =
@@ -114,7 +115,7 @@ export function ExampleCard({
         <span className={`badge ${tone}`}>{badge}</span>
       </div>
       <p className="muted">{description}</p>
-      <pre>{code}</pre>
+      <CopyableCode code={code} />
     </div>
   );
 }
@@ -134,15 +135,17 @@ export function DiagnosticExample({
         <h3>{title}</h3>
         <p className="muted">{expected}</p>
       </div>
-      <pre>{`curl -sS ${apiUrl("/api/diagnostics/explain")} \\
+      <CopyableCode
+        code={`curl -sS ${apiUrl("/api/diagnostics/explain")} \\
   -H "content-type: application/json" \\
-  -d '${body}'`}</pre>
+  -d '${body}'`}
+      />
     </div>
   );
 }
 
 export function CurlBlock({ children }: { children: string }) {
-  return <pre>{children}</pre>;
+  return <CopyableCode code={children} />;
 }
 
 export function AmountNote() {

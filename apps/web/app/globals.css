@@ -1625,9 +1625,9 @@ tr:last-child td {
   margin-bottom: 6px;
 }
 
-.docs-diagnostic-example pre,
-.docs-example-card pre,
-.docs-base-card pre {
+.docs-diagnostic-example .copy-code,
+.docs-example-card .copy-code,
+.docs-base-card .copy-code {
   margin: 0;
 }
 
@@ -1651,6 +1651,39 @@ pre {
   background: var(--ink-900);
   color: #dbe8f4;
   padding: 16px;
+}
+
+.copy-code {
+  position: relative;
+}
+
+.copy-code pre {
+  margin: 0;
+  padding-right: 92px;
+}
+
+.copy-code-button {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  border: 1px solid rgba(219, 232, 244, 0.22);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5fbff;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.copy-code-button:hover {
+  background: rgba(18, 184, 215, 0.22);
+  border-color: rgba(18, 184, 215, 0.55);
 }
 
 @media (max-width: 1280px) {
@@ -1737,6 +1770,17 @@ pre {
   .search-box,
   .result-row {
     grid-template-columns: 1fr;
+  }
+
+  .copy-code-button {
+    position: static;
+    justify-self: end;
+    margin-bottom: 6px;
+    background: var(--ink-900);
+  }
+
+  .copy-code pre {
+    padding-right: 16px;
   }
 
   .result-row-meta {

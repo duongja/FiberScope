@@ -294,6 +294,7 @@ select {
 
 .card {
   position: relative;
+  min-width: 0;
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--border);
@@ -1592,6 +1593,7 @@ tr:last-child td {
   display: grid;
   align-content: start;
   gap: 10px;
+  min-width: 0;
 }
 
 .docs-example-head {
@@ -1608,6 +1610,7 @@ tr:last-child td {
 .docs-example-stack {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .docs-diagnostic-example {
@@ -1645,6 +1648,7 @@ tr:last-child td {
 }
 
 pre {
+  max-width: 100%;
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -1655,11 +1659,18 @@ pre {
 
 .copy-code {
   position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .copy-code pre {
   margin: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
   padding-right: 92px;
+  white-space: pre;
 }
 
 .copy-code-button {

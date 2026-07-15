@@ -21,7 +21,7 @@ export default function RoutesDocsPage() {
         <AmountNote />
       </section>
 
-      <section className="grid cols-3 docs-section">
+      <section className="docs-example-stack docs-section">
         <ExampleCard
           title="Direct successful route"
           badge="can pay"

@@ -2,6 +2,23 @@
 
 This runbook covers local judging, self-hosted operator deployments, and hosted infrastructure deployments.
 
+## Current Hosted Demo
+
+The public judging deployment is:
+
+```txt
+Web: https://fiber-scope-web.vercel.app
+API: https://fiber-scope-api-six.vercel.app
+```
+
+Architecture:
+
+```txt
+Railway Fiber node + continuous worker -> Supabase Postgres -> Vercel API/Web
+```
+
+The Fiber RPC endpoint is private inside the Railway service. The public API and web UI read from Postgres, so users do not need to run a Fiber node.
+
 ## Local Demo Deployment
 
 Use this when no Fiber node is available.
@@ -87,7 +104,9 @@ The worker stores source-level snapshots and errors. If one source fails, the AP
 
 ## Vercel Hobby Deployment
 
-Use Vercel for the web UI and request/response API, backed by an external Postgres database. Keep the Fiber node and polling worker outside Vercel, then refresh production data with:
+Use Vercel for the web UI and request/response API, backed by an external Postgres database. Keep the Fiber node and polling worker outside Vercel.
+
+For production-like demos, prefer Railway continuous ingestion. For a one-time manual refresh, run:
 
 ```sh
 DATABASE_URL="postgresql://..." \
@@ -106,7 +125,7 @@ For judging or production-like uptime, run the Fiber node and ingestion worker t
 Railway live service -> Supabase Postgres -> Vercel API/Web
 ```
 
-The Railway worker runs continuously and replaces manual `pnpm ingest:once` refreshes. See [Railway continuous ingestion](railway-continuous-ingestion.md).
+The Railway worker runs continuously and replaces manual `pnpm ingest:once` refreshes. Fiber RPC stays private on `127.0.0.1` inside the container. See [Railway continuous ingestion](railway-continuous-ingestion.md).
 
 ## Docker Compose Live Mode
 

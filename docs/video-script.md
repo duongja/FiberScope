@@ -2,6 +2,13 @@
 
 Target length: 4 to 6 minutes.
 
+Public demo:
+
+```txt
+Web: https://fiber-scope-web.vercel.app
+API: https://fiber-scope-api-six.vercel.app
+```
+
 ## 0:00 - 0:30 Problem
 
 Fiber enables fast off-chain payments, but developers still need infrastructure around it. Wallets and merchants need to know whether a payment can probably route, whether a receiver has inbound capacity, which peers are useful for channel opening, and whether failures are caused by routing, liquidity, asset mismatch, or connectivity.
@@ -16,9 +23,10 @@ FiberScope is a reusable Fiber infrastructure layer. It connects to one or more 
 - route-readiness APIs
 - liquidity recommendations
 - diagnostics
+- intelligence search
 - OpenAPI metadata
 - graph exports
-- an OpenAPI contract
+- a lightweight TypeScript client package
 
 The browser user does not need a Fiber node. The backend operator connects FiberScope to Fiber RPC.
 
@@ -35,7 +43,7 @@ Point out current live metrics:
 - stale channel count
 - latest snapshot timestamp
 
-Say clearly whether this run is live-node mode or demo mode. For judging, show live-node mode and run:
+Say clearly that the hosted demo uses Railway continuous ingestion, Supabase Postgres, and Vercel API/Web. If recording locally, show live-node mode and run:
 
 ```sh
 pnpm smoke:live
@@ -87,12 +95,24 @@ Explain:
 
 Then open receive readiness and show inbound capacity for the target.
 
-## 4:00 - 4:45 Diagnostics And API Docs
+## 4:00 - 4:45 Search, Liquidity, Diagnostics, And API Docs
+
+Open Search and paste:
+
+```txt
+0x7a47009d25089ebb22aea2c82876c8362e18d44325e579c4fc5f1e57758fbbdc00000000
+```
+
+Explain that a developer or operator can paste a value without knowing whether it is a node, channel, asset, or route-related value first.
+
+Open Liquidity.
+
+Explain that recommendations help wallets, operators, and LSP-style services choose useful public peers by asset and amount.
 
 Open Diagnostics and paste:
 
 ```txt
-no route found for asset CKB
+payment failed because no route found for asset CKB and insufficient liquidity
 ```
 
 Explain that FiberScope translates low-level failures into actionable categories and recovery steps.
@@ -103,6 +123,7 @@ Open Docs and show:
 - `/api/readiness/can-receive`
 - `/api/liquidity/recommendations`
 - `/api/diagnostics/explain`
+- `/api/search`
 - `/api/export/graph.json`
 - `/api/openapi.json`
 

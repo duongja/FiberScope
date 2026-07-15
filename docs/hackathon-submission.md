@@ -12,18 +12,21 @@ FiberScope also supports Wallet and Payment UX Infrastructure through its readin
 
 ## Team Members
 
-- TBD
+- duongja
 
 ## Repository
 
-- TBD: public repository URL
+- https://github.com/duongja/FiberScope
 
 ## Demo
 
+- Hosted web UI: https://fiber-scope-web.vercel.app
+- Hosted API: https://fiber-scope-api-six.vercel.app
+- API health: https://fiber-scope-api-six.vercel.app/health
+- OpenAPI: https://fiber-scope-api-six.vercel.app/api/openapi.json
 - Local web UI: `http://localhost:3000`
 - Local API: `http://127.0.0.1:8788` in live-node mode
-- Hosted demo: TBD
-- Video demonstration: TBD
+- Video demonstration: included with the hackathon submission entry.
 
 ## Problem
 
@@ -50,7 +53,8 @@ It can run in three modes:
 
 - Demo mode: built-in sample graph for onboarding and UI demos.
 - Live-node mode: one real Fiber RPC endpoint.
-- Hosted multi-node mode: multiple Fiber RPC sources for higher availability.
+- Hosted continuous mode: a long-running Fiber node and worker update the database automatically.
+- Hosted multi-node mode: multiple Fiber RPC sources for higher availability when operators provide more than one source.
 
 End users do not need to run a Fiber node. Operators connect FiberScope to one or more nodes, and wallets, merchants, services, or dashboards consume the normalized APIs.
 
@@ -65,6 +69,7 @@ End users do not need to run a Fiber node. Operators connect FiberScope to one o
 - Wallet-friendly `can-pay` and `can-receive` APIs.
 - Liquidity recommendation API for choosing public peers.
 - Failure diagnostics API that maps low-level messages to actionable recovery steps.
+- Search API and UI for node pubkeys, channel outpoints, assets, and route-history values.
 - Optional TCP reachability probes for announced multiaddrs.
 - Optional CKB funding outpoint enrichment.
 - JSON and CSV exports for external monitoring and analysis.
@@ -85,6 +90,7 @@ End users do not need to run a Fiber node. Operators connect FiberScope to one o
 - `@fiberscope/fiber-rpc`: Fiber JSON-RPC client.
 - `@fiberscope/route-engine`: route estimation and confidence scoring.
 - `@fiberscope/ckb-indexer`: CKB RPC/indexer enrichment helpers.
+- `@fiberscope/sdk`: lightweight TypeScript client for common API calls.
 - `GET /api/openapi.json`: contract for generated clients, wallet integrations, merchant services, and monitoring tools.
 - `@fiberscope/shared`: shared graph types, asset helpers, and sample graph.
 - `@fiberscope/db`: Prisma database client package.
@@ -107,7 +113,7 @@ It does not store private payments, private invoices, exact private channel bala
 
 ## Real Fiber Validation
 
-Live-node validation used a real Fiber testnet node from the Docker image:
+Live-node validation uses real Fiber testnet graph data. The local validation path used the Docker image:
 
 ```txt
 nervos/fiber:0.9.0-rc7
@@ -115,14 +121,16 @@ Fiber RPC: http://127.0.0.1:8227
 sample source: disabled
 ```
 
-Latest observed live graph after running the worker:
+The hosted judging deployment uses Railway for the Fiber node plus continuous worker, Supabase Postgres for the indexed graph, and Vercel for the API/frontend.
+
+Example hosted graph status observed on July 15, 2026:
 
 ```txt
-nodes: 51
-current channels: 1033
-known channels including stale: 1034
-enabled directions: 1969
-latest source: http://127.0.0.1:8227
+nodes: 58
+current channels: 1097
+enabled directions: 2079
+latest source: http://127.0.0.1:8227 inside the Railway service
+latest completed snapshot: 2026-07-15T18:45:16.868Z
 ```
 
 Counts are expected to change as the Fiber testnet graph changes.
@@ -141,8 +149,10 @@ Real:
 - Public graph normalization.
 - Route readiness based on public graph data.
 - Liquidity recommendation scoring.
+- Search over indexed public graph data.
 - Ingestion observability.
 - API, OpenAPI contract, exports, and web UI.
+- Lightweight TypeScript client package for common API calls.
 
 Optional or environment-dependent:
 
@@ -194,6 +204,21 @@ Open:
 http://localhost:3000
 ```
 
+Hosted demo:
+
+```txt
+Web: https://fiber-scope-web.vercel.app
+API: https://fiber-scope-api-six.vercel.app
+```
+
+Quick hosted API checks:
+
+```sh
+curl -fsS https://fiber-scope-api-six.vercel.app/health
+curl -fsS https://fiber-scope-api-six.vercel.app/api/ingestion/sources
+curl -fsS https://fiber-scope-api-six.vercel.app/api/network/summary
+```
+
 ## Roadmap
 
 Near term:
@@ -220,7 +245,7 @@ Long term:
 
 ## AI Allowance Claim
 
-AI tools were used for research, planning, implementation assistance, documentation drafting, and validation workflow design. Claim amount: TBD.
+AI tools were used for research, planning, implementation assistance, documentation drafting, and validation workflow design. Claim amount: up to the allowed hackathon reimbursement amount, if eligible.
 
 ## Judging Fit
 

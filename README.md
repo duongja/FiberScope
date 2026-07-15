@@ -4,6 +4,15 @@ FiberScope is an open-source network explorer, route-readiness engine, and liqui
 
 It is designed for wallet builders first: it turns Fiber public graph data into practical answers such as "can this payment probably route?", "which nodes support this asset?", and "which public peer should a wallet open a channel with?"
 
+## Hosted Demo
+
+- Web UI: https://fiber-scope-web.vercel.app
+- API: https://fiber-scope-api-six.vercel.app
+- API health: https://fiber-scope-api-six.vercel.app/health
+- OpenAPI: https://fiber-scope-api-six.vercel.app/api/openapi.json
+
+The hosted demo uses a Railway-hosted Fiber testnet node and continuous worker, Supabase Postgres, and Vercel for the API and frontend. Fiber RPC stays private inside the Railway service; the public API and web UI read normalized graph data from Postgres.
+
 ## What FiberScope Shows
 
 - Public Fiber nodes and channels.
@@ -13,10 +22,23 @@ It is designed for wallet builders first: it turns Fiber public graph data into 
 - Wallet readiness APIs for paying, receiving, and peer recommendations.
 - CKB on-chain enrichment for channel funding outpoints when available.
 - Optional reachability probes for announced TCP multiaddrs.
+- Search across nodes, channels, assets, and route history.
 
 ## What FiberScope Does Not Show
 
 FiberScope does not show private payments, private invoices, exact private channel balances, or private payment paths. Fiber payments are off-chain and private by design.
+
+## Hackathon Submission
+
+FiberScope targets the **Node, Routing, Cross-Chain, and Diagnostics Infrastructure** category. It is infrastructure that other wallets, merchants, node operators, and liquidity services can reuse; it is not a custodial wallet and does not send payments.
+
+Submission materials:
+
+- [Hackathon submission draft](docs/hackathon-submission.md)
+- [Video script](docs/video-script.md)
+- [Architecture](docs/architecture.md)
+- [Railway continuous ingestion](docs/railway-continuous-ingestion.md)
+- [Vercel Hobby deployment](docs/vercel-hobby.md)
 
 ## Local Development
 

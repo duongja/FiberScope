@@ -25,6 +25,38 @@ OpenAPI: https://fiber-scope-api-six.vercel.app/api/openapi.json
 
 The hosted instance runs on real Fiber testnet graph data. A Railway service runs the Fiber node and ingestion worker, Supabase stores normalized graph snapshots, and Vercel serves the API and web UI. Fiber RPC is kept private inside the Railway service; public users consume the indexed database through FiberScope.
 
+## Screenshots
+
+Full screenshot assets are stored in `docs/screenshots/`.
+
+**Overview**
+
+![FiberScope overview](docs/screenshots/overview.png)
+
+**Nodes**
+
+![FiberScope nodes](docs/screenshots/nodes-list.png)
+
+**Channels**
+
+![FiberScope channels](docs/screenshots/channels.png)
+
+**Route Readiness**
+
+![FiberScope routes](docs/screenshots/routes.png)
+
+**Diagnostics**
+
+![FiberScope diagnostics](docs/screenshots/diagnostics.png)
+
+**Observability**
+
+![FiberScope observability](docs/screenshots/observability.png)
+
+**Liquidity**
+
+![FiberScope liquidity](docs/screenshots/liquidity.png)
+
 ## Hackathon Fit
 
 FiberScope targets the **Node, Routing, Cross-Chain, and Diagnostics Infrastructure** category.

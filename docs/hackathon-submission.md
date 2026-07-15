@@ -2,13 +2,13 @@
 
 ## Project Summary
 
-FiberScope is an open-source Fiber Network explorer, route-readiness engine, diagnostics API, and wallet/merchant SDK. It turns Fiber public graph data into reusable infrastructure for developers: normalized node and channel views, liquidity recommendations, payment readiness checks, route estimates, failure diagnostics, OpenAPI metadata, and graph exports.
+FiberScope is an open-source Fiber Network explorer, route-readiness engine, diagnostics API, and OpenAPI-documented integration layer. It turns Fiber public graph data into reusable infrastructure for developers: normalized node and channel views, liquidity recommendations, payment readiness checks, route estimates, failure diagnostics, OpenAPI metadata, and graph exports.
 
 ## Selected Category
 
 Node, Routing, Cross-Chain, and Diagnostics Infrastructure.
 
-FiberScope also supports Wallet and Payment UX Infrastructure through its readiness APIs and SDK, but the core submission is infrastructure for graph ingestion, routing diagnostics, network visibility, and operator tooling.
+FiberScope also supports Wallet and Payment UX Infrastructure through its readiness APIs, but the core submission is infrastructure for graph ingestion, routing diagnostics, network visibility, and operator tooling.
 
 ## Team Members
 
@@ -43,7 +43,7 @@ Without reusable tooling, each wallet, merchant, explorer, or liquidity service 
 FiberScope provides a reusable layer between Fiber nodes and applications:
 
 ```txt
-Fiber node RPC -> worker ingestion -> Postgres -> Fastify API -> web UI / SDK
+Fiber node RPC -> worker ingestion -> Postgres -> Fastify API -> web UI / OpenAPI clients
 ```
 
 It can run in three modes:
@@ -69,7 +69,7 @@ End users do not need to run a Fiber node. Operators connect FiberScope to one o
 - Optional CKB funding outpoint enrichment.
 - JSON and CSV exports for external monitoring and analysis.
 - OpenAPI endpoint for integration.
-- Typed SDK package for wallets and merchant services.
+- OpenAPI contract for generated clients and integration tests.
 - Reproducible demo/live-node scripts.
 
 ## Technical Breakdown
@@ -85,7 +85,7 @@ End users do not need to run a Fiber node. Operators connect FiberScope to one o
 - `@fiberscope/fiber-rpc`: Fiber JSON-RPC client.
 - `@fiberscope/route-engine`: route estimation and confidence scoring.
 - `@fiberscope/ckb-indexer`: CKB RPC/indexer enrichment helpers.
-- `@fiberscope/sdk`: typed client for wallets, merchant services, and monitoring tools.
+- `GET /api/openapi.json`: contract for generated clients, wallet integrations, merchant services, and monitoring tools.
 - `@fiberscope/shared`: shared graph types, asset helpers, and sample graph.
 - `@fiberscope/db`: Prisma database client package.
 
@@ -142,7 +142,7 @@ Real:
 - Route readiness based on public graph data.
 - Liquidity recommendation scoring.
 - Ingestion observability.
-- API, SDK, exports, and web UI.
+- API, OpenAPI contract, exports, and web UI.
 
 Optional or environment-dependent:
 
@@ -164,7 +164,7 @@ Developers can reuse FiberScope in several ways:
 
 - Run it beside a Fiber node as an operator dashboard.
 - Use the API as a wallet readiness backend.
-- Use the SDK inside wallet or merchant services.
+- Use the HTTP API or generated OpenAPI clients inside wallet or merchant services.
 - Export graph data to notebooks, monitoring systems, or liquidity services.
 - Use diagnostics responses to translate low-level failures into user-facing recovery flows.
 - Use liquidity recommendations to guide channel opening and LSP-style peer selection.

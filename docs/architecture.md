@@ -1,8 +1,8 @@
 # FiberScope Architecture
 
-FiberScope is split into independent packages so other Fiber tools can reuse the RPC client, route engine, SDK, and API model without adopting the UI.
+FiberScope is split into independent packages so other Fiber tools can reuse the RPC client, route engine, and API model without adopting the UI.
 
-The `@fiberscope/sdk` package is the intended integration point for wallets and merchant services. It wraps the readiness, route estimate, liquidity recommendation, diagnostics, and network summary endpoints with typed methods.
+The documented integration point for wallets and merchant services is the HTTP API plus `GET /api/openapi.json` for generated clients.
 
 ## Data Flow
 
@@ -37,7 +37,7 @@ The public explorer is intentionally limited to announced graph data and on-chai
 
 ## Node Dependency
 
-FiberScope needs at least one live Fiber node to refresh real network data, but browser users and SDK consumers do not need to run a node themselves. The worker talks to Fiber RPC, stores normalized snapshots in Postgres, and the API/UI read from that database.
+FiberScope needs at least one live Fiber node to refresh real network data, but browser users and API consumers do not need to run a node themselves. The worker talks to Fiber RPC, stores normalized snapshots in Postgres, and the API/UI read from that database.
 
 If a Fiber node is temporarily unavailable, the API can continue serving the latest stored snapshot. Freshness is visible through ingestion source timestamps and snapshot status. For production, run multiple Fiber RPC sources through `FIBER_RPC_URLS` so the explorer is not coupled to a single node's availability.
 

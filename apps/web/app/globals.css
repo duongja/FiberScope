@@ -109,37 +109,47 @@ select {
   gap: 6px;
 }
 
-.nav a {
+.nav a,
+.nav button {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   position: relative;
+  border: 0;
+  background: transparent;
   color: #c3d4dc;
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 14px;
+  text-align: left;
+  cursor: pointer;
   transition:
     background 160ms ease,
     color 160ms ease,
     transform 160ms ease;
 }
 
-.nav a:hover {
+.nav a:hover,
+.nav button:hover {
   background: rgba(18, 184, 215, 0.12);
   color: #ffffff;
   transform: translateX(2px);
 }
 
 .nav a.active,
-.nav a[aria-current="page"] {
+.nav a[aria-current="page"],
+.nav button.active {
   background: rgba(18, 184, 215, 0.16);
   color: #ffffff;
   box-shadow: inset 0 0 0 1px rgba(18, 184, 215, 0.14);
 }
 
 .nav a:hover::before,
+.nav button:hover::before,
 .nav a.active::before,
-.nav a[aria-current="page"]::before {
+.nav a[aria-current="page"]::before,
+.nav button.active::before {
   content: "";
   position: absolute;
   left: 0;
@@ -148,6 +158,39 @@ select {
   border-radius: 999px;
   background: var(--fiber-cyan);
   box-shadow: 0 0 16px rgba(18, 184, 215, 0.65);
+}
+
+.nav-group {
+  display: grid;
+  gap: 5px;
+}
+
+.nav-chevron {
+  margin-left: auto;
+  transition: transform 160ms ease;
+}
+
+.nav-group.open .nav-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-subnav {
+  display: grid;
+  gap: 3px;
+  margin-left: 13px;
+  padding: 4px 0 4px 12px;
+  border-left: 1px solid rgba(18, 184, 215, 0.24);
+}
+
+.nav-subnav a {
+  min-height: 30px;
+  padding: 7px 10px;
+  color: #9fb8c3;
+  font-size: 12px;
+}
+
+.nav-subnav a:hover {
+  transform: translateX(1px);
 }
 
 .main {
@@ -1294,6 +1337,38 @@ tr:last-child td {
   margin-top: 16px;
 }
 
+.docs-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.docs-nav-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 150px;
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.docs-nav-card:hover {
+  border-color: rgba(18, 184, 215, 0.45);
+  box-shadow: 0 14px 30px rgba(18, 184, 215, 0.1);
+  transform: translateY(-2px);
+}
+
+.docs-nav-card h2,
+.docs-nav-card p {
+  margin: 0;
+}
+
+.docs-nav-card p {
+  color: var(--muted);
+}
+
 .docs-hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
@@ -1436,7 +1511,8 @@ pre {
   }
 
   .docs-hero-grid,
-  .docs-diagnostic-example {
+  .docs-diagnostic-example,
+  .docs-nav-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1452,6 +1528,14 @@ pre {
 
   .nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .nav-group {
+    grid-column: 1 / -1;
+  }
+
+  .nav-subnav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .main {

@@ -18,7 +18,7 @@ FiberScope is a reusable Fiber infrastructure layer. It connects to one or more 
 - diagnostics
 - OpenAPI metadata
 - graph exports
-- a typed SDK
+- an OpenAPI contract
 
 The browser user does not need a Fiber node. The backend operator connects FiberScope to Fiber RPC.
 
@@ -87,7 +87,7 @@ Explain:
 
 Then open receive readiness and show inbound capacity for the target.
 
-## 4:00 - 4:45 Diagnostics And SDK
+## 4:00 - 4:45 Diagnostics And API Docs
 
 Open Diagnostics and paste:
 
@@ -104,7 +104,7 @@ Open Docs and show:
 - `/api/liquidity/recommendations`
 - `/api/diagnostics/explain`
 - `/api/export/graph.json`
-- `@fiberscope/sdk`
+- `/api/openapi.json`
 
 ## 4:45 - 5:30 Infrastructure Fit
 

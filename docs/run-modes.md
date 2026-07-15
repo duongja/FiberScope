@@ -3,14 +3,14 @@
 FiberScope separates data collection from data consumption:
 
 ```txt
-Fiber node RPC -> worker ingestion -> Postgres -> API -> web UI / SDK
+Fiber node RPC -> worker ingestion -> Postgres -> API -> web UI / OpenAPI clients
 ```
 
-The product needs Fiber node connectivity somewhere in the backend to refresh real public graph data. End users browsing the explorer, wallets using the SDK, and merchant tools calling the API do not need to run a node themselves.
+The product needs Fiber node connectivity somewhere in the backend to refresh real public graph data. End users browsing the explorer, wallets using generated OpenAPI clients, and merchant tools calling the API do not need to run a node themselves.
 
 ## Demo Mode
 
-Demo mode uses built-in sample graph data. It is useful for UI work, hackathon demos, and SDK onboarding when no Fiber node is available.
+Demo mode uses built-in sample graph data. It is useful for UI work, hackathon demos, and API onboarding when no Fiber node is available.
 
 ```sh
 pnpm dev:demo

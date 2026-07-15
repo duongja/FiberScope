@@ -117,25 +117,10 @@ GET /api/export/channels.csv
 GET /api/openapi.json
 ```
 
-## Wallet SDK
+## Integration
 
-FiberScope includes `@fiberscope/sdk`, a small typed client for wallets and merchant services.
-
-```ts
-import { FiberScopeClient } from "@fiberscope/sdk";
-
-const scope = new FiberScopeClient({ baseUrl: "http://localhost:8787" });
-
-const readiness = await scope.canPay({
-  sourcePubkey: "...",
-  targetPubkey: "...",
-  asset: "CKB",
-  amount: "100000000",
-});
-
-const graph = await scope.graphExport();
-const channelsCsv = await scope.channelsCsv();
-```
+The supported integration surface is the HTTP API plus `GET /api/openapi.json`
+for generated clients and integration tests.
 
 ## Architecture
 
@@ -152,5 +137,5 @@ Postgres
 Fastify API ---- Next.js Explorer UI
         |
         v
-Route Engine + Diagnostics + Wallet SDK
+Route Engine + Diagnostics + OpenAPI
 ```

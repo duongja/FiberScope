@@ -233,7 +233,6 @@ FiberScope copy should be direct and operational.
 
 Use:
 
-- `Public graph estimate`
 - `CKB evidence`
 - `Route readiness`
 - `Live funding outpoint`

@@ -68,7 +68,6 @@ export default async function HomePage() {
             wallet-builder APIs for Fiber Network.
           </p>
         </div>
-        <span className="badge green">Public graph estimate</span>
       </div>
 
       <section className="grid cols-4">

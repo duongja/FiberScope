@@ -141,7 +141,7 @@ http://localhost:3000
     - `/api/export/graph.json`
     - `/api/export/nodes.csv`
     - `/api/export/channels.csv`
-    - `@fiberscope/sdk`
+    - `/api/openapi.json`
 
 12. State the privacy boundary.
 
@@ -149,4 +149,4 @@ http://localhost:3000
 
 ## One-Minute Close
 
-FiberScope addresses a clear Fiber infrastructure gap: developers need reliable graph ingestion, route-readiness checks, liquidity visibility, diagnostics, and exports before wallets, merchants, and LSP-style services can build good payment experiences. The project is reusable because the API and SDK are the primary product; the web explorer is the reference client.
+FiberScope addresses a clear Fiber infrastructure gap: developers need reliable graph ingestion, route-readiness checks, liquidity visibility, diagnostics, and exports before wallets, merchants, and LSP-style services can build good payment experiences. The project is reusable because the HTTP API, OpenAPI contract, and exports are the primary product; the web explorer is the reference client.

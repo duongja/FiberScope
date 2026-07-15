@@ -33,6 +33,16 @@ export const OPENAPI_DOCUMENT = {
         summary: "Indexed CKB and UDT assets",
       },
     },
+    "/api/search": {
+      get: {
+        summary:
+          "Search nodes, channels, assets, and recent route estimates from one query",
+        parameters: [
+          queryParam("q", "Pubkey, channel outpoint, asset symbol/id, chain hash, or text fragment"),
+          queryParam("limit", "Maximum results per category"),
+        ],
+      },
+    },
     "/api/nodes": {
       get: {
         summary: "Search indexed Fiber nodes",

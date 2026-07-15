@@ -31,16 +31,20 @@ interface Estimate {
 }
 
 export function RouteForm({
+  defaultAmount,
+  defaultAsset,
   defaultSource,
   defaultTarget,
 }: {
+  defaultAmount?: string;
+  defaultAsset?: string;
   defaultSource?: string;
   defaultTarget?: string;
 }) {
   const [source, setSource] = useState(defaultSource ?? "");
   const [target, setTarget] = useState(defaultTarget ?? "");
-  const [asset, setAsset] = useState("CKB");
-  const [amount, setAmount] = useState("100000000");
+  const [asset, setAsset] = useState(defaultAsset ?? "CKB");
+  const [amount, setAmount] = useState(defaultAmount ?? "100000000");
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

@@ -70,6 +70,25 @@ export default async function HomePage() {
         </div>
       </div>
 
+      <form action="/search" className="home-search-panel">
+        <div>
+          <strong>Investigate the graph</strong>
+          <span>
+            Search a pubkey, channel outpoint, asset, UDT id, or chain hash.
+          </span>
+        </div>
+        <input
+          aria-label="Search FiberScope"
+          className="input mono"
+          name="q"
+          placeholder="Paste any Fiber value..."
+          type="search"
+        />
+        <button className="button" type="submit">
+          Search
+        </button>
+      </form>
+
       <section className="grid cols-4">
         <StatCard
           label="Public nodes"

@@ -11,6 +11,7 @@ import {
   Gauge,
   GitFork,
   Network,
+  Search,
   Stethoscope,
   Telescope,
   type LucideIcon,
@@ -18,6 +19,7 @@ import {
 
 const navItems: Array<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/", label: "Overview", icon: Gauge },
+  { href: "/search", label: "Search", icon: Search },
   { href: "/nodes", label: "Nodes", icon: Network },
   { href: "/channels", label: "Channels", icon: GitFork },
   { href: "/routes", label: "Routes", icon: Activity },

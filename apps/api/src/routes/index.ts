@@ -126,6 +126,86 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     );
   });
 
+  app.get("/api/search", async (request) => {
+    const q = normalizeSearchQuery(stringQuery(request, "q"));
+    const limit = numberQuery(request, "limit", 8, 25);
+    if (!q) {
+      return {
+        query: "",
+        nodes: [],
+        channels: [],
+        assets: [],
+        routeEstimates: [],
+      };
+    }
+
+    const [nodes, channels, assets, routeEstimates] = await Promise.all([
+      prisma.fiberNode.findMany({
+        where: {
+          OR: [
+            { pubkey: { contains: q, mode: "insensitive" } },
+            { nodeName: { contains: q, mode: "insensitive" } },
+            { chainHash: { contains: q, mode: "insensitive" } },
+          ],
+        },
+        include: { score: true },
+        orderBy: [{ stale: "asc" }, { lastSeenAt: "desc" }],
+        take: limit,
+      }),
+      prisma.fiberChannel.findMany({
+        where: {
+          OR: [
+            { channelOutpoint: { contains: q, mode: "insensitive" } },
+            { node1Pubkey: { contains: q, mode: "insensitive" } },
+            { node2Pubkey: { contains: q, mode: "insensitive" } },
+            { chainHash: { contains: q, mode: "insensitive" } },
+            {
+              asset: {
+                OR: [
+                  { symbol: { contains: q, mode: "insensitive" } },
+                  { id: { contains: q, mode: "insensitive" } },
+                ],
+              },
+            },
+          ],
+        },
+        include: { asset: true, directions: true, ckbStatus: true },
+        orderBy: [{ stale: "asc" }, { lastSeenAt: "desc" }],
+        take: limit,
+      }),
+      prisma.asset.findMany({
+        where: {
+          OR: [
+            { id: { contains: q, mode: "insensitive" } },
+            { symbol: { contains: q, mode: "insensitive" } },
+            { chainHash: { contains: q, mode: "insensitive" } },
+          ],
+        },
+        orderBy: [{ kind: "asc" }, { symbol: "asc" }],
+        take: limit,
+      }),
+      prisma.routeEstimate.findMany({
+        where: {
+          OR: [
+            { sourcePubkey: { contains: q, mode: "insensitive" } },
+            { targetPubkey: { contains: q, mode: "insensitive" } },
+            { assetId: { contains: q, mode: "insensitive" } },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+      }),
+    ]);
+
+    return jsonSafe({
+      query: q,
+      nodes,
+      channels,
+      assets,
+      routeEstimates,
+    });
+  });
+
   app.get("/api/nodes", async (request) => {
     const q = stringQuery(request, "q");
     const limit = numberQuery(request, "limit", 50);
@@ -666,6 +746,10 @@ async function estimateDiagnosticRoute(body: DiagnosticRequestBody) {
 
 function stringValue(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function normalizeSearchQuery(value?: string): string {
+  return (value ?? "").trim().replace(/\s+/g, " ").slice(0, 160);
 }
 
 function asJson(value: unknown): Prisma.InputJsonValue {

@@ -15,8 +15,22 @@ interface ChannelsResponse {
   }>;
 }
 
-export default async function ChannelsPage() {
-  const { channels } = await apiGet<ChannelsResponse>("/api/channels?limit=100");
+export default async function ChannelsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ asset?: string; q?: string }>;
+}) {
+  const params = await searchParams;
+  const query = new URLSearchParams({ limit: "100" });
+  if (params.asset) {
+    query.set("asset", params.asset);
+  }
+  if (params.q) {
+    query.set("q", params.q);
+  }
+  const { channels } = await apiGet<ChannelsResponse>(
+    `/api/channels?${query.toString()}`,
+  );
 
   return (
     <>
@@ -25,6 +39,7 @@ export default async function ChannelsPage() {
           <h1>Public channels</h1>
           <p>Inspect public channel capacity, asset type, directional status, and CKB funding status.</p>
         </div>
+        {params.asset ? <span className="badge">{params.asset}</span> : null}
       </div>
       <div className="table-wrap">
         <table>

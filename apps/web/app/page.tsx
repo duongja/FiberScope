@@ -102,51 +102,37 @@ export default async function HomePage() {
         />
       </section>
 
-      <section className="grid cols-2" style={{ marginTop: 16 }}>
-        <div className="card">
+      <section className="home-insights-grid">
+        <NetworkNodesPanel nodes={nodes.nodes} summary={summary} />
+
+        <div className="card home-capacity-card">
           <h2 style={{ marginTop: 0 }}>Capacity by asset</h2>
           <p className="muted">
             Total public CKB capacity: {formatCkb(ckbCapacity)}
           </p>
-          <div className="grid">
+          <div className="asset-list">
             {summary.capacityByAsset.map((asset) => (
-              <div
-                className="card"
-                style={{ boxShadow: "none" }}
-                key={asset.assetId}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                  }}
-                >
-                  <div>
-                    <strong>{asset.symbol}</strong>
-                    <div className="muted">
-                      {asset.kind} · {asset.channelCount} channels
-                    </div>
+              <div className="asset-row" key={asset.assetId}>
+                <div>
+                  <strong>{asset.symbol}</strong>
+                  <div className="muted">
+                    {asset.kind} · {asset.channelCount} channels
                   </div>
-                  <div className="mono">
-                    {asset.symbol === "CKB"
-                      ? formatCkb(asset.capacity)
-                      : asset.capacity}
-                  </div>
+                </div>
+                <div className="mono asset-amount">
+                  {asset.symbol === "CKB"
+                    ? formatCkb(asset.capacity)
+                    : asset.capacity}
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
 
-      <section className="grid cols-2" style={{ marginTop: 16 }}>
-        <NetworkNodesPanel nodes={nodes.nodes} summary={summary} />
-
-        <div className="card">
+        <div className="card home-recent-card">
           <h2 style={{ marginTop: 0 }}>Recent channels</h2>
           <div className="table-wrap">
-            <table>
+            <table className="compact-table">
               <thead>
                 <tr>
                   <th>Outpoint</th>

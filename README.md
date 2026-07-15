@@ -1,60 +1,119 @@
 # FiberScope
 
-FiberScope is an open-source network explorer, route-readiness engine, and liquidity intelligence API for Fiber Network.
+FiberScope is open-source infrastructure for Fiber Network visibility, route readiness, liquidity intelligence, and payment-failure diagnostics.
 
-It is designed for wallet builders first: it turns Fiber public graph data into practical answers such as "can this payment probably route?", "which nodes support this asset?", and "which public peer should a wallet open a channel with?"
+Fiber Network exposes public graph data, but application builders still need a dependable layer that answers practical integration questions:
 
-## Hosted Demo
+- Is the public graph fresh?
+- Which nodes and channels are visible?
+- Which assets have usable public capacity?
+- Can this payment probably route before a wallet attempts it?
+- Does a receiver appear to have inbound capacity?
+- Which public peers are useful for channel opening?
+- Why did a payment attempt fail, and what should an operator or wallet try next?
 
-- Web UI: https://fiber-scope-web.vercel.app
-- API: https://fiber-scope-api-six.vercel.app
-- API health: https://fiber-scope-api-six.vercel.app/health
-- OpenAPI: https://fiber-scope-api-six.vercel.app/api/openapi.json
+FiberScope turns public Fiber graph data into a reusable explorer, API, OpenAPI contract, route-readiness engine, diagnostics layer, and export surface.
 
-The hosted demo uses a Railway-hosted Fiber testnet node and continuous worker, Supabase Postgres, and Vercel for the API and frontend. Fiber RPC stays private inside the Railway service; the public API and web UI read normalized graph data from Postgres.
+## Live Instance
 
-## What FiberScope Shows
+```txt
+Web:     https://fiber-scope-web.vercel.app
+API:     https://fiber-scope-api-six.vercel.app
+Health:  https://fiber-scope-api-six.vercel.app/health
+OpenAPI: https://fiber-scope-api-six.vercel.app/api/openapi.json
+```
 
-- Public Fiber nodes and channels.
-- Public channel capacity by asset.
-- Directional channel status, fee rates, TLC limits, and advertised outbound liquidity.
-- Route estimates from the public graph.
-- Wallet readiness APIs for paying, receiving, and peer recommendations.
-- CKB on-chain enrichment for channel funding outpoints when available.
-- Optional reachability probes for announced TCP multiaddrs.
-- Search across nodes, channels, assets, and route history.
+The hosted instance runs on real Fiber testnet graph data. A Railway service runs the Fiber node and ingestion worker, Supabase stores normalized graph snapshots, and Vercel serves the API and web UI. Fiber RPC is kept private inside the Railway service; public users consume the indexed database through FiberScope.
 
-## What FiberScope Does Not Show
+## Hackathon Fit
 
-FiberScope does not show private payments, private invoices, exact private channel balances, or private payment paths. Fiber payments are off-chain and private by design.
+FiberScope targets the **Node, Routing, Cross-Chain, and Diagnostics Infrastructure** category.
 
-## Submission Fit
+It is not a consumer wallet, custodial service, or payment-sending application. It is reusable infrastructure for wallets, merchants, node operators, liquidity providers, and developer tools that need reliable access to Fiber public graph intelligence.
 
-FiberScope targets the **Node, Routing, Cross-Chain, and Diagnostics Infrastructure** category. It is infrastructure that other wallets, merchants, node operators, and liquidity services can reuse; it is not a custodial wallet and does not send payments.
+## What It Provides
 
-The infrastructure gap it addresses is concrete: Fiber exposes public graph data, but builders still need normalized indexing, freshness checks, route-readiness APIs, liquidity recommendations, diagnostics, exports, and documentation before they can build reliable wallet or merchant flows.
+- **Network explorer**: public nodes, channels, assets, directional channel state, fees, TLC limits, and stale graph indicators.
+- **Network map**: configurable graph view for inspecting visible channels and topology.
+- **Route readiness**: public-graph route estimates with confidence, hop count, estimated fees, and warnings.
+- **Wallet readiness APIs**: `can-pay` and `can-receive` endpoints for wallet and merchant preflight checks.
+- **Liquidity recommendations**: peer suggestions for channel opening, filtered by asset and amount.
+- **Payment diagnostics**: structured explanations and recommended actions for common routing, liquidity, asset, and connectivity failures.
+- **Search**: lookup across node pubkeys, channel outpoints, assets, and route-history values.
+- **Observability**: ingestion source status, snapshot history, graph freshness, node counts, channel counts, and source errors.
+- **CKB evidence**: optional enrichment for Fiber channel funding outpoints when CKB data is available.
+- **Exports**: normalized public graph data as JSON and CSV.
+- **OpenAPI**: machine-readable API contract for generated clients and integration tests.
+- **TypeScript client**: lightweight SDK package for common FiberScope API calls.
 
-Core docs:
+## Privacy Boundary
 
-- [Architecture](docs/architecture.md)
-- [Deployment](docs/deployment.md)
-- [Demo guide](docs/demo.md)
+FiberScope indexes public graph data and optional public CKB funding evidence. It does not expose private payments, private invoices, exact private channel balances, private routes, wallet keys, or payment preimages.
 
-## Local Development
+Route readiness is a public-graph estimate, not a payment guarantee. Missing advertised outbound liquidity lowers confidence because the public graph cannot prove that a channel can carry the amount.
 
-FiberScope has two local run modes:
+## Architecture
 
-- Demo mode uses sample graph data and does not require a Fiber node.
-- Live-node mode ingests public graph data from one or more Fiber RPC endpoints.
+```txt
+Fiber node RPC
+  graph_nodes / graph_channels
+        |
+        v
+Worker ingestion
+  normalize graph data
+  enrich CKB outpoints
+  run optional reachability probes
+  refresh node scores
+        |
+        v
+Postgres
+        |
+        v
+Fastify API
+  explorer endpoints
+  route readiness
+  liquidity recommendations
+  diagnostics
+  OpenAPI and exports
+        |
+        v
+Next.js web UI
+```
 
-Demo mode:
+More detail: [docs/architecture.md](docs/architecture.md)
+
+## Repository Structure
+
+```txt
+apps/api          Fastify API and OpenAPI endpoint
+apps/web          Next.js explorer UI
+apps/worker       Fiber graph ingestion, scoring, enrichment, probes
+packages/db       Prisma client wrapper
+packages/shared   Shared types, asset helpers, sample graph data
+packages/fiber-rpc Fiber JSON-RPC client
+packages/route-engine Route estimation and confidence scoring
+packages/ckb-indexer CKB RPC/indexer enrichment helpers
+packages/sdk      Lightweight TypeScript client
+prisma            Database schema and seed data
+infra             Fiber and Railway deployment files
+```
+
+## Run Locally
+
+Demo mode uses sample graph data and does not require a Fiber node:
 
 ```sh
 pnpm install
 pnpm dev:demo
 ```
 
-Live-node mode against a local Fiber node:
+Open:
+
+```txt
+http://localhost:3000
+```
+
+Live-node mode runs against a local Dockerized Fiber testnet node:
 
 ```sh
 pnpm install
@@ -63,90 +122,106 @@ pnpm fiber:testnet
 pnpm dev:live
 ```
 
-`pnpm fiber:testnet` starts a disposable testnet Fiber node with Docker and exposes RPC on `http://127.0.0.1:8227`. It is for local development only; production deployments should point `FIBER_RPC_URLS` at operator-managed Fiber nodes.
+Local live services:
 
-Manual setup is also available:
-
-```sh
-pnpm install
-pnpm db:generate
-cp .env.example .env
-docker compose up postgres redis
-pnpm db:push
-pnpm seed
-pnpm dev
+```txt
+Fiber RPC: http://127.0.0.1:8227
+API:       http://127.0.0.1:8788
+Web:       http://localhost:3000
 ```
 
-Services:
-
-- Web: http://localhost:3000
-- API: http://localhost:8787
-- Health: http://localhost:8787/health
-
-For a one-command demo:
-
-```sh
-docker compose up
-```
-
-The worker can ingest live Fiber RPC data when `FIBER_RPC_URLS` is set. If `FIBERSCOPE_USE_SAMPLE_DATA=true`, it also seeds realistic sample graph data so the UI works without a local Fiber node.
-
-Enable active reachability checks with:
-
-```sh
-FIBERSCOPE_ENABLE_REACHABILITY_PROBES=true pnpm --filter @fiberscope/worker dev
-```
-
-The prober only checks announced TCP multiaddrs, stores latency/error history, and feeds the node reachability score.
-
-Validate a clean live-node run with:
+Validate a live-node run:
 
 ```sh
 pnpm smoke:live
 ```
 
-## API Highlights
+`pnpm fiber:testnet` is for local testnet development only. It uses a disposable key flow and should not be used for funded production nodes.
+
+## Deploy
+
+The hosted deployment uses:
 
 ```txt
-GET /api/network/summary
-GET /api/network/history
-GET /api/ingestion/sources
-GET /api/nodes
-GET /api/nodes/:pubkey
-GET /api/channels
-GET /api/channels/:outpoint
-GET /api/reachability/summary
-GET /api/routes/estimate
-GET /api/liquidity/recommendations
-GET /api/readiness/can-pay
-GET /api/readiness/can-receive
-GET /api/diagnostics/explain
-POST /api/diagnostics/explain
-GET /api/export/graph.json
-GET /api/export/nodes.csv
-GET /api/export/channels.csv
-GET /api/openapi.json
+Railway Fiber node + worker -> Supabase Postgres -> Vercel API -> Vercel Web
 ```
 
-## Integration
+The worker must run outside Vercel because it is a long-running polling process. Vercel serves request/response workloads only: the Fastify API and the Next.js frontend.
 
-The supported integration surface is the HTTP API plus `GET /api/openapi.json`
-for generated clients and integration tests.
+Deployment guide: [docs/deployment.md](docs/deployment.md)
 
-## Architecture
+## API Surface
+
+Core endpoints:
 
 ```txt
-Fiber RPC graph_nodes / graph_channels
-        |
-        v
-Worker ingestion + CKB enrichment + reachability probes
-        |
-        v
-Postgres
-        |
-        v
-Fastify API ---- Next.js Explorer UI
-        |
-        v
-Route Engine + Diagnostics + OpenAPI
+GET  /health
+GET  /api/network/summary
+GET  /api/network/history
+GET  /api/ingestion/sources
+GET  /api/nodes
+GET  /api/nodes/:pubkey
+GET  /api/channels
+GET  /api/channels/:outpoint
+GET  /api/search
+GET  /api/routes/estimate
+GET  /api/liquidity/recommendations
+GET  /api/readiness/can-pay
+GET  /api/readiness/can-receive
+GET  /api/diagnostics/explain
+POST /api/diagnostics/explain
+GET  /api/reachability/summary
+GET  /api/export/graph.json
+GET  /api/export/nodes.csv
+GET  /api/export/channels.csv
+GET  /api/openapi.json
+```
+
+Example route readiness query:
+
+```sh
+curl -fsS 'https://fiber-scope-api-six.vercel.app/api/routes/estimate?source_pubkey=0262dafc075994862492d66752591dc790210e32a298bd934339298fcf10d00f61&target_pubkey=034c662ff2cb6c290c50d31df4e8640dba489f73dfdeb43dd1faede96021505381&asset=CKB&amount=100000000'
+```
+
+Example diagnostics request:
+
+```sh
+curl -fsS 'https://fiber-scope-api-six.vercel.app/api/diagnostics/explain' \
+  -H 'content-type: application/json' \
+  -d '{"message":"payment failed because no route found for asset CKB and insufficient liquidity","asset":"CKB","amount":"100000000"}'
+```
+
+## Current Status
+
+Working:
+
+- Fiber RPC graph ingestion from live testnet nodes.
+- Normalized public graph storage in Postgres.
+- Explorer pages for network, nodes, channels, routes, liquidity, diagnostics, observability, search, and docs.
+- Route estimation and readiness checks based on public graph constraints.
+- Liquidity recommendation scoring.
+- Failure diagnostics responses.
+- OpenAPI, JSON export, and CSV export.
+- Railway continuous ingestion and Vercel-hosted API/web deployment.
+
+Optional or environment-dependent:
+
+- CKB funding enrichment depends on RPC/indexer availability and channel outpoint decoding.
+- Reachability probes are disabled by default and depend on public TCP accessibility.
+
+Not in scope:
+
+- Opening channels.
+- Sending payments.
+- Custody or key management.
+- Private payment tracing.
+
+## Verification
+
+```sh
+pnpm typecheck
+pnpm test
+NEXT_PUBLIC_API_URL=https://fiber-scope-api-six.vercel.app \
+FIBERSCOPE_SERVER_API_URL=https://fiber-scope-api-six.vercel.app \
+pnpm --filter @fiberscope/web build
 ```

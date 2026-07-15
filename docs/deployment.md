@@ -1,27 +1,104 @@
-# Deployment Runbook
+# FiberScope Deployment
 
-This runbook covers local judging, self-hosted operator deployments, and hosted infrastructure deployments.
+This guide covers the deployment shape used for the hosted demo and the minimum commands needed to run FiberScope locally.
 
-## Current Hosted Demo
-
-The public judging deployment is:
+## Hosted Demo
 
 ```txt
 Web: https://fiber-scope-web.vercel.app
 API: https://fiber-scope-api-six.vercel.app
+OpenAPI: https://fiber-scope-api-six.vercel.app/api/openapi.json
 ```
 
-Architecture:
+Production-style topology:
 
 ```txt
-Railway Fiber node + continuous worker -> Supabase Postgres -> Vercel API/Web
+Railway Fiber node + worker -> Supabase Postgres -> Vercel API -> Vercel Web
 ```
 
-The Fiber RPC endpoint is private inside the Railway service. The public API and web UI read from Postgres, so users do not need to run a Fiber node.
+The Fiber node and worker run together on Railway. Fiber RPC stays private on `127.0.0.1:8227` inside that service. The worker continuously indexes public graph data into Supabase. Vercel serves the API and frontend from the indexed database.
 
-## Local Demo Deployment
+## Required Environment
 
-Use this when no Fiber node is available.
+API:
+
+```txt
+DATABASE_URL=postgresql://...
+NODE_ENV=production
+LOG_LEVEL=warn
+```
+
+Web:
+
+```txt
+NEXT_PUBLIC_API_URL=https://fiber-scope-api-six.vercel.app
+FIBERSCOPE_SERVER_API_URL=https://fiber-scope-api-six.vercel.app
+```
+
+Worker/Fiber service:
+
+```txt
+DATABASE_URL=postgresql://...
+FIBERSCOPE_USE_SAMPLE_DATA=false
+FIBER_GRAPH_POLL_INTERVAL_SECONDS=300
+FIBER_SECRET_KEY_PASSWORD=replace-with-a-long-secret
+CKB_RPC_URL=https://testnet.ckb.dev/rpc
+CKB_EXPLORER_BASE_URL=https://pudge.explorer.nervos.org
+FIBERSCOPE_ENABLE_REACHABILITY_PROBES=false
+```
+
+## Railway Worker
+
+Create a Railway service from the repository using:
+
+```txt
+Dockerfile path: infra/railway/fiberscope-live.Dockerfile
+Volume mount path: /fiber
+```
+
+The container starts Fiber RPC locally, pushes the Prisma schema, then runs the worker continuously. The `/fiber` volume keeps the Fiber key, config, and database across redeploys.
+
+Do not expose a public Railway domain for this service. It is not the public API.
+
+## Vercel API
+
+Create a Vercel project:
+
+```txt
+Root Directory: apps/api
+Framework Preset: Other
+Build Command: cd ../.. && pnpm --filter @fiberscope/api... build
+Install Command: cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate
+```
+
+Verify:
+
+```sh
+curl https://fiber-scope-api-six.vercel.app/health
+curl https://fiber-scope-api-six.vercel.app/api/network/summary
+curl https://fiber-scope-api-six.vercel.app/api/ingestion/sources
+```
+
+## Vercel Web
+
+Create a second Vercel project:
+
+```txt
+Root Directory: apps/web
+Framework Preset: Next.js
+Build Command: cd ../.. && pnpm --filter @fiberscope/web... build
+Install Command: cd ../.. && pnpm install --frozen-lockfile && pnpm db:generate
+```
+
+Open:
+
+```txt
+https://fiber-scope-web.vercel.app
+```
+
+## Local Demo
+
+No Fiber node required:
 
 ```sh
 pnpm install
@@ -34,11 +111,9 @@ Open:
 http://localhost:3000
 ```
 
-This uses `.env.demo`, the `demo` Postgres schema, and sample graph data.
+## Local Live Fiber Testnet
 
-## Local Live-Node Deployment
-
-Use this for a real Fiber graph demo.
+Run against a Dockerized Fiber testnet node:
 
 ```sh
 pnpm install
@@ -48,7 +123,7 @@ pnpm dev:live
 pnpm smoke:live
 ```
 
-Services:
+Local services:
 
 ```txt
 Fiber RPC: http://127.0.0.1:8227
@@ -56,126 +131,12 @@ API:       http://127.0.0.1:8788
 Web:       http://localhost:3000
 ```
 
-`pnpm fiber:testnet` starts a Dockerized Fiber testnet node and generates a throwaway CKB key under `/tmp/fiberscope-real-fnn` if one does not exist. This is local testnet infrastructure only.
+The local Fiber helper uses a throwaway testnet key. Do not use it for funded production nodes.
 
-## Self-Hosted Operator Deployment
+## Operator Notes
 
-Use this when an operator already runs one or more Fiber nodes.
-
-1. Copy the live profile:
-
-   ```sh
-   cp .env.live-node.example .env.live-node
-   ```
-
-2. Set the Fiber RPC source:
-
-   ```sh
-   FIBER_RPC_URLS="http://your-fiber-node:8227"
-   FIBERSCOPE_USE_SAMPLE_DATA="false"
-   ```
-
-3. Start dependencies and schema:
-
-   ```sh
-   docker compose up -d postgres redis
-   pnpm db:generate
-   pnpm db:push
-   ```
-
-4. Start the app:
-
-   ```sh
-   pnpm dev:live
-   ```
-
-For production, run the API, worker, and web app under a process supervisor or container orchestrator rather than `pnpm dev`.
-
-## Hosted Multi-Node Deployment
-
-Use multiple Fiber RPC sources so FiberScope is not tied to one node.
-
-```sh
-FIBER_RPC_URLS="http://node-a:8227,http://node-b:8227,http://node-c:8227"
-FIBERSCOPE_USE_SAMPLE_DATA="false"
-```
-
-The worker stores source-level snapshots and errors. If one source fails, the API can continue serving cached data and Observability will show the failure.
-
-## Vercel Hobby Deployment
-
-Use Vercel for the web UI and request/response API, backed by an external Postgres database. Keep the Fiber node and polling worker outside Vercel.
-
-For production-like demos, prefer Railway continuous ingestion. For a one-time manual refresh, run:
-
-```sh
-DATABASE_URL="postgresql://..." \
-FIBER_RPC_URLS="https://your-fiber-rpc.example/" \
-FIBERSCOPE_USE_SAMPLE_DATA="false" \
-pnpm ingest:once
-```
-
-See [Vercel Hobby deployment](vercel-hobby.md) for the full two-project setup.
-
-## Railway Continuous Ingestion
-
-For judging or production-like uptime, run the Fiber node and ingestion worker together on Railway:
-
-```txt
-Railway live service -> Supabase Postgres -> Vercel API/Web
-```
-
-The Railway worker runs continuously and replaces manual `pnpm ingest:once` refreshes. Fiber RPC stays private on `127.0.0.1` inside the container. See [Railway continuous ingestion](railway-continuous-ingestion.md).
-
-## Docker Compose Live Mode
-
-When Fiber RPC runs on the host and FiberScope runs in Docker Compose on Linux, use:
-
-```sh
-FIBER_RPC_URLS="http://host.docker.internal:8227" docker compose --env-file .env.live-node up
-```
-
-The Compose file maps `host.docker.internal` to the host gateway for worker access.
-
-## Security Notes
-
-- Do not expose Fiber JSON-RPC publicly without authentication and network controls.
-- Keep Fiber RPC bound to a private interface where possible.
-- Do not use the local throwaway key helper for funded production nodes.
-- Do not store production CKB keys in this repository.
-- Put public API deployments behind TLS and rate limiting.
-- Treat reachability probes as operational signals, not payment guarantees.
-
-## Operational Checks
-
-Run:
-
-```sh
-pnpm smoke:live
-```
-
-Expected result:
-
-- at least one completed non-sample ingestion source
-- no `sample://fiber` source in the live schema
-- non-zero node and channel counts
-- route estimate generated from two recommended public nodes
-
-Useful endpoints:
-
-```txt
-GET /health
-GET /api/ingestion/sources
-GET /api/network/summary
-GET /api/reachability/summary
-GET /api/openapi.json
-```
-
-## Production Gaps To Close
-
-- Build production Docker images instead of using dev commands in Compose.
-- Add auth for admin/operator endpoints if they are exposed beyond trusted networks.
-- Add metrics export for API latency, worker poll duration, and Fiber RPC failures.
-- Add database backups and retention policy.
-- Add multi-source graph reconciliation rules.
-- Add hosted deployment IaC.
+- Keep Fiber RPC private unless you add authentication and network controls.
+- Run one worker replica per Fiber source unless you intentionally design multi-source reconciliation.
+- The API can serve the latest stored graph if the Fiber node is temporarily unavailable.
+- Freshness is visible at `/api/ingestion/sources`.
+- Reachability probes are optional operational signals, not payment guarantees.

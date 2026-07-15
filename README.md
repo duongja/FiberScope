@@ -28,17 +28,17 @@ The hosted demo uses a Railway-hosted Fiber testnet node and continuous worker, 
 
 FiberScope does not show private payments, private invoices, exact private channel balances, or private payment paths. Fiber payments are off-chain and private by design.
 
-## Hackathon Submission
+## Submission Fit
 
 FiberScope targets the **Node, Routing, Cross-Chain, and Diagnostics Infrastructure** category. It is infrastructure that other wallets, merchants, node operators, and liquidity services can reuse; it is not a custodial wallet and does not send payments.
 
-Submission materials:
+The infrastructure gap it addresses is concrete: Fiber exposes public graph data, but builders still need normalized indexing, freshness checks, route-readiness APIs, liquidity recommendations, diagnostics, exports, and documentation before they can build reliable wallet or merchant flows.
 
-- [Hackathon submission draft](docs/hackathon-submission.md)
-- [Video script](docs/video-script.md)
+Core docs:
+
 - [Architecture](docs/architecture.md)
-- [Railway continuous ingestion](docs/railway-continuous-ingestion.md)
-- [Vercel Hobby deployment](docs/vercel-hobby.md)
+- [Deployment](docs/deployment.md)
+- [Demo guide](docs/demo.md)
 
 ## Local Development
 
@@ -90,17 +90,6 @@ docker compose up
 ```
 
 The worker can ingest live Fiber RPC data when `FIBER_RPC_URLS` is set. If `FIBERSCOPE_USE_SAMPLE_DATA=true`, it also seeds realistic sample graph data so the UI works without a local Fiber node.
-
-See [docs/run-modes.md](docs/run-modes.md) for the full node dependency model, including cached-data behavior and hosted multi-node deployments.
-
-For hackathon judging and operator deployment:
-
-- [Codespaces demo runbook](docs/codespaces-demo.md)
-- [Vercel Hobby deployment](docs/vercel-hobby.md)
-- [Submission draft](docs/hackathon-submission.md)
-- [Deployment runbook](docs/deployment.md)
-- [Demo script](docs/demo.md)
-- [Video script](docs/video-script.md)
 
 Enable active reachability checks with:
 

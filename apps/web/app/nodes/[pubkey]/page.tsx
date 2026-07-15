@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { StatCard } from "../../../components/stat-card";
-import { apiGet, formatCkb, truncateMiddle } from "../../../lib/api";
+import { apiGetOrNull, formatCkb, truncateMiddle } from "../../../lib/api";
 
 interface NodeDetail {
   node: {
@@ -32,7 +32,46 @@ interface NodeDetail {
 
 export default async function NodeDetailPage({ params }: { params: Promise<{ pubkey: string }> }) {
   const { pubkey } = await params;
-  const { node, channels } = await apiGet<NodeDetail>(`/api/nodes/${pubkey}`);
+  const detail = await apiGetOrNull<NodeDetail>(`/api/nodes/${pubkey}`);
+  if (!detail) {
+    return (
+      <>
+        <div className="page-head">
+          <div>
+            <h1>Node not indexed</h1>
+            <p className="mono">{pubkey}</p>
+          </div>
+          <span className="badge orange">not found</span>
+        </div>
+
+        <section className="card missing-entity-card">
+          <h2>What this means</h2>
+          <p className="muted">
+            This pubkey is referenced by the public graph, but the node
+            announcement is not currently indexed as a node record. This can
+            happen when a channel remains visible while one participant has not
+            announced fresh node metadata.
+          </p>
+          <div className="missing-entity-actions">
+            <Link
+              className="button"
+              href={`/search?q=${encodeURIComponent(pubkey)}`}
+            >
+              Search references
+            </Link>
+            <Link
+              className="button secondary"
+              href={`/channels?q=${encodeURIComponent(pubkey)}`}
+            >
+              View related channels
+            </Link>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  const { node, channels } = detail;
   const enabledDirections = channels.flatMap((channel) => channel.directions).filter((direction) => direction.enabled);
 
   return (

@@ -896,6 +896,21 @@ tr:last-child td {
   margin-top: 18px;
 }
 
+.missing-entity-card {
+  max-width: 760px;
+}
+
+.missing-entity-card h2 {
+  margin-top: 0;
+}
+
+.missing-entity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
 .network-map-panel {
   position: relative;
   overflow: hidden;

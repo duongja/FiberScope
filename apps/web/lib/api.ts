@@ -11,6 +11,19 @@ export async function apiGet<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+export async function apiGetOrNull<T>(path: string): Promise<T | null> {
+  const response = await fetch(`${SERVER_API_URL}${path}`, {
+    cache: "no-store",
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`API ${path} failed with HTTP ${response.status}`);
+  }
+  return (await response.json()) as T;
+}
+
 export function apiUrl(path: string): string {
   return `${BROWSER_API_URL}${path}`;
 }

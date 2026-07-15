@@ -955,6 +955,341 @@ tr:last-child td {
   gap: 14px;
 }
 
+.route-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-areas:
+    "query guide"
+    "result guide";
+  gap: 16px;
+  align-items: start;
+}
+
+.route-query-card {
+  grid-area: query;
+}
+
+.route-guide-panel {
+  grid-area: guide;
+  display: grid;
+  gap: 16px;
+  position: sticky;
+  top: 24px;
+}
+
+.route-result-column {
+  grid-area: result;
+  display: grid;
+  gap: 16px;
+}
+
+.route-form-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+.route-submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.route-submit-row .muted {
+  font-size: 13px;
+}
+
+.route-guide-card h2 {
+  margin: 0 0 12px;
+}
+
+.route-guide-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.route-readout-list {
+  display: grid;
+  gap: 11px;
+}
+
+.route-readout-list span {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.route-readout-list svg {
+  margin-top: 2px;
+  color: var(--fiber-cyan);
+}
+
+.route-error {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.route-error svg {
+  color: var(--warning-amber);
+}
+
+.route-error strong {
+  display: block;
+  color: #0a6174;
+}
+
+.route-error p {
+  margin: 4px 0 0;
+}
+
+.route-result-card {
+  display: grid;
+  gap: 16px;
+}
+
+.route-result-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.route-result-head h2 {
+  margin: 6px 0 0;
+}
+
+.route-kicker {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: #0b7891;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.route-score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.route-metric {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(18, 184, 215, 0.18);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f8fbfd);
+}
+
+.route-metric span,
+.route-metric small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.route-metric strong {
+  display: block;
+  margin: 5px 0 2px;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.route-confidence {
+  display: grid;
+  gap: 7px;
+}
+
+.route-confidence-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.route-confidence-head strong {
+  color: var(--ink);
+}
+
+.section-head.compact {
+  margin-bottom: 10px;
+}
+
+.section-head.compact h3 {
+  margin: 0;
+}
+
+.section-head.compact p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.route-path {
+  display: grid;
+  gap: 10px;
+}
+
+.route-hop-list {
+  display: grid;
+  gap: 9px;
+}
+
+.route-hop {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.route-hop-index {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #e9f8fc;
+  color: #0b7891;
+  font-weight: 800;
+}
+
+.route-hop-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.route-hop-main strong,
+.route-hop-main span {
+  overflow-wrap: anywhere;
+}
+
+.route-hop-main span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.route-hop-fee {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.route-hop-fee strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.route-hop-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.route-hop-warnings span {
+  padding: 3px 7px;
+  border: 1px solid rgba(199, 121, 19, 0.25);
+  border-radius: 999px;
+  background: #fff7ea;
+  color: var(--warning-amber);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.route-empty-path {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 13px;
+  border: 1px dashed rgba(18, 184, 215, 0.32);
+  border-radius: 8px;
+  color: var(--muted);
+  background: #f8fbfd;
+}
+
+.route-empty-path svg {
+  color: var(--fiber-cyan);
+}
+
+.route-advice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.route-advice {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.route-advice h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.route-advice p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.route-advice.green {
+  border-color: rgba(19, 165, 107, 0.28);
+  background: #f2fbf7;
+}
+
+.route-advice.orange {
+  border-color: rgba(199, 121, 19, 0.28);
+  background: #fff9ef;
+}
+
+.route-advice.blue {
+  border-color: rgba(18, 184, 215, 0.25);
+  background: #f1fbff;
+}
+
+.route-empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.route-empty-state svg {
+  color: var(--fiber-cyan);
+}
+
+.route-empty-state h2 {
+  margin: 10px 0 0;
+}
+
+.route-empty-state p {
+  max-width: 520px;
+  margin: 8px auto 0;
+  color: var(--muted);
+}
+
 .callout {
   border: 1px solid rgba(18, 184, 215, 0.28);
   background: #eefbff;
@@ -994,6 +1329,19 @@ pre {
   .home-insights-grid .node-snapshot-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  .route-workbench {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "query"
+      "guide"
+      "result";
+  }
+
+  .route-guide-panel {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {
@@ -1017,17 +1365,31 @@ pre {
   .grid.cols-3,
   .grid.cols-4,
   .node-snapshot-grid,
-  .form-grid {
+  .form-grid,
+  .route-guide-panel,
+  .route-score-grid,
+  .route-advice-grid {
     grid-template-columns: 1fr;
   }
 
   .section-head,
-  .node-rank-row {
+  .node-rank-row,
+  .route-result-head,
+  .route-hop {
     grid-template-columns: 1fr;
   }
 
   .section-head {
     display: grid;
+  }
+
+  .route-result-head,
+  .route-hop {
+    display: grid;
+  }
+
+  .route-hop-fee {
+    justify-items: start;
   }
 
   .node-rank-scores {

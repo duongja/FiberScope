@@ -1,0 +1,12 @@
+.git
+.next
+.turbo
+.codespaces-runtime
+node_modules
+apps/*/.next
+apps/*/dist
+packages/*/dist
+dist
+coverage
+.env*
+*.log

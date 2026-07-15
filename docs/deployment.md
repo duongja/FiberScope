@@ -98,6 +98,16 @@ pnpm ingest:once
 
 See [Vercel Hobby deployment](vercel-hobby.md) for the full two-project setup.
 
+## Railway Continuous Ingestion
+
+For judging or production-like uptime, run the Fiber node and ingestion worker together on Railway:
+
+```txt
+Railway live service -> Supabase Postgres -> Vercel API/Web
+```
+
+The Railway worker runs continuously and replaces manual `pnpm ingest:once` refreshes. See [Railway continuous ingestion](railway-continuous-ingestion.md).
+
 ## Docker Compose Live Mode
 
 When Fiber RPC runs on the host and FiberScope runs in Docker Compose on Linux, use:

@@ -7,7 +7,7 @@ This runbook deploys FiberScope on Vercel Hobby with:
 - External Postgres: shared database for API reads and one-shot worker ingestion.
 - External Fiber node: the Codespaces or VPS-hosted Fiber RPC endpoint.
 
-The worker is not deployed to Vercel. It is a polling process, so run it manually, from Codespaces, from GitHub Actions, or later on a VPS.
+The worker is not deployed to Vercel. It is a polling process, so run it manually, from Codespaces, from GitHub Actions, or as a long-running Railway/VPS service.
 
 ## 1. Create The Production Database
 
@@ -75,11 +75,11 @@ CKB_EXPLORER_BASE_URL="https://pudge.explorer.nervos.org" \
 pnpm ingest:once
 ```
 
-Re-run this command whenever you want to refresh the public graph during judging.
+Re-run this command whenever you want to refresh the public graph during judging. For automatic updates, run the worker continuously on Railway instead of using this manual command.
 
 ## 3.1. Schedule Ingestion With GitHub Actions
 
-The repository includes `.github/workflows/fiberscope-ingest.yml`. It refreshes the Supabase graph every two hours and can also be run manually from the GitHub Actions tab.
+The repository includes `.github/workflows/fiberscope-ingest.yml`. It refreshes the Supabase graph every two hours and can also be run manually from the GitHub Actions tab. This is a fallback option; the preferred automatic setup is the Railway worker in [Railway continuous ingestion](railway-continuous-ingestion.md).
 
 Add these repository secrets in GitHub:
 

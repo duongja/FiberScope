@@ -105,19 +105,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  setInterval(() => {
-    pollGraph().catch((error) => log.error({ error }, "graph poll failed"));
-  }, env.graphPollIntervalSeconds * 1000);
-
-  setInterval(() => {
-    enrichCkb().catch((error) => log.error({ error }, "CKB enrichment failed"));
-  }, env.ckbEnrichIntervalSeconds * 1000);
-
-  setInterval(() => {
-    probeReachability().catch((error) =>
-      log.error({ error }, "reachability probe failed"),
-    );
-  }, env.reachabilityProbeIntervalSeconds * 1000);
+  runLoop("graph poll", env.graphPollIntervalSeconds, pollGraph);
+  runLoop("CKB enrichment", env.ckbEnrichIntervalSeconds, enrichCkb);
+  runLoop("reachability probe", env.reachabilityProbeIntervalSeconds, probeReachability);
 }
 
 function safeSourceName(url: string): string {
@@ -139,6 +129,43 @@ function errorDetails(error: unknown): Record<string, unknown> {
   }
   return { message: String(error) };
 }
+
+function runLoop(label: string, intervalSeconds: number, task: () => Promise<unknown>): void {
+  void (async () => {
+    while (true) {
+      await sleep(intervalSeconds * 1000);
+      const startedAt = Date.now();
+      try {
+        log.info({ label }, "worker task started");
+        await task();
+        log.info({ label, durationMs: Date.now() - startedAt }, "worker task completed");
+      } catch (error) {
+        log.error(
+          { label, durationMs: Date.now() - startedAt, error: errorDetails(error) },
+          "worker task failed",
+        );
+      }
+    }
+  })();
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function shutdown(signal: string): Promise<void> {
+  log.info({ signal }, "worker shutting down");
+  await prisma.$disconnect();
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => {
+  void shutdown("SIGTERM");
+});
+
+process.on("SIGINT", () => {
+  void shutdown("SIGINT");
+});
 
 main().catch(async (error) => {
   log.error({ error: errorDetails(error) }, "worker crashed");

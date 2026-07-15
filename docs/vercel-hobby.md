@@ -77,6 +77,33 @@ pnpm ingest:once
 
 Re-run this command whenever you want to refresh the public graph during judging.
 
+## 3.1. Schedule Ingestion With GitHub Actions
+
+The repository includes `.github/workflows/fiberscope-ingest.yml`. It refreshes the Supabase graph every two hours and can also be run manually from the GitHub Actions tab.
+
+Add these repository secrets in GitHub:
+
+```txt
+FIBERSCOPE_DATABASE_URL=postgresql://...
+FIBERSCOPE_FIBER_RPC_URLS=https://curly-trout-q6xj79w9vx7f6jp-8227.app.github.dev/
+```
+
+Optional repository variables:
+
+```txt
+FIBERSCOPE_API_URL=https://fiber-scope-api-six.vercel.app
+FIBERSCOPE_CKB_RPC_URL=https://testnet.ckb.dev/rpc
+FIBERSCOPE_CKB_EXPLORER_BASE_URL=https://pudge.explorer.nervos.org
+```
+
+Manual run:
+
+```txt
+GitHub repository -> Actions -> Refresh FiberScope graph -> Run workflow
+```
+
+The workflow fails if the Fiber RPC URL is down, so a failed run is a useful signal that the temporary Codespaces node needs to be restarted.
+
 ## 4. Deploy The Web Project
 
 Create a second Vercel project from the same GitHub repository and set:

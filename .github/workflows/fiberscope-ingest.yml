@@ -1,0 +1,67 @@
+name: Refresh FiberScope graph
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */2 * * *"
+
+concurrency:
+  group: fiberscope-graph-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    name: Ingest Fiber graph into Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      DATABASE_URL: ${{ secrets.FIBERSCOPE_DATABASE_URL }}
+      FIBER_RPC_URLS: ${{ secrets.FIBERSCOPE_FIBER_RPC_URLS }}
+      FIBERSCOPE_USE_SAMPLE_DATA: "false"
+      FIBERSCOPE_WORKER_ONCE: "true"
+      CKB_RPC_URL: ${{ vars.FIBERSCOPE_CKB_RPC_URL }}
+      CKB_EXPLORER_BASE_URL: ${{ vars.FIBERSCOPE_CKB_EXPLORER_BASE_URL }}
+    steps:
+      - name: Check required secrets
+        run: |
+          test -n "$DATABASE_URL" || { echo "Missing secret FIBERSCOPE_DATABASE_URL"; exit 1; }
+          test -n "$FIBER_RPC_URLS" || { echo "Missing secret FIBERSCOPE_FIBER_RPC_URLS"; exit 1; }
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Verify Fiber RPC
+        run: |
+          first_url="${FIBER_RPC_URLS%%,*}"
+          curl -fsS \
+            -H "content-type: application/json" \
+            -d '{"jsonrpc":"2.0","id":1,"method":"node_info","params":[]}' \
+            "$first_url" >/tmp/fiber-node-info.json
+          node -e 'const fs=require("fs"); const payload=JSON.parse(fs.readFileSync("/tmp/fiber-node-info.json","utf8")); console.log({ version: payload.result?.version, pubkey: payload.result?.pubkey, peers_count: payload.result?.peers_count });'
+
+      - name: Ingest graph
+        run: pnpm ingest:once
+
+      - name: Verify hosted API counts
+        if: vars.FIBERSCOPE_API_URL != ''
+        run: |
+          curl -fsS "$FIBERSCOPE_API_URL/health"
+        env:
+          FIBERSCOPE_API_URL: ${{ vars.FIBERSCOPE_API_URL }}

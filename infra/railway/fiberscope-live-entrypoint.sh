@@ -34,8 +34,12 @@ export FIBERSCOPE_USE_SAMPLE_DATA="${FIBERSCOPE_USE_SAMPLE_DATA:-false}"
 /usr/local/bin/docker-entrypoint.sh fnn &
 fiber_pid="$!"
 worker_pid=""
+gateway_pid=""
 
 shutdown() {
+  if [ -n "$gateway_pid" ]; then
+    kill "$gateway_pid" 2>/dev/null || true
+  fi
   if [ -n "$worker_pid" ]; then
     kill "$worker_pid" 2>/dev/null || true
   fi
@@ -43,6 +47,9 @@ shutdown() {
   wait "$fiber_pid" 2>/dev/null || true
   if [ -n "$worker_pid" ]; then
     wait "$worker_pid" 2>/dev/null || true
+  fi
+  if [ -n "$gateway_pid" ]; then
+    wait "$gateway_pid" 2>/dev/null || true
   fi
 }
 trap shutdown INT TERM
@@ -70,7 +77,15 @@ pnpm db:push
 pnpm --filter @fiberscope/worker start &
 worker_pid="$!"
 
+if [ "${DULAR_GATEWAY_ENABLED:-true}" = "true" ]; then
+  node /app/infra/railway/dular-gateway.js &
+  gateway_pid="$!"
+fi
+
 while kill -0 "$fiber_pid" 2>/dev/null && kill -0 "$worker_pid" 2>/dev/null; do
+  if [ -n "$gateway_pid" ] && ! kill -0 "$gateway_pid" 2>/dev/null; then
+    break
+  fi
   sleep 5
 done
 

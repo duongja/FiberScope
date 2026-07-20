@@ -11,6 +11,9 @@ importers:
       '@prisma/client':
         specifier: ^6.1.0
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      ws:
+        specifier: 8.21.1
+        version: 8.21.1
     devDependencies:
       '@types/node':
         specifier: ^22.10.2
@@ -119,6 +122,9 @@ importers:
       pino:
         specifier: ^9.5.0
         version: 9.14.0
+      ws:
+        specifier: 8.21.1
+        version: 8.21.1
     devDependencies:
       tsx:
         specifier: ^4.19.2
@@ -1488,6 +1494,18 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  ws@8.21.1:
+    resolution: {integrity: sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
 snapshots:
 
   '@emnapi/runtime@1.11.2':
@@ -2577,3 +2595,5 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  ws@8.21.1: {}

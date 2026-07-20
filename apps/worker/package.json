@@ -20,7 +20,8 @@
     "@fiberscope/fiber-rpc": "workspace:*",
     "@fiberscope/shared": "workspace:*",
     "@prisma/client": "^6.1.0",
-    "pino": "^9.5.0"
+    "pino": "^9.5.0",
+    "ws": "8.21.1"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

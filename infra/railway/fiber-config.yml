@@ -57,7 +57,7 @@ ckb:
             code_hash: 0x00000000000000000000000000000000000000000000000000545950455f4944
             hash_type: type
             args: 0x97d30b723c0b2c66e9cb8d4d0df4ab5d7222cbb00d4a9a2055ce2e5d7f0d8b0f
-      auto_accept_amount: 1000000000
+      auto_accept_amount: 100000000
 
 services:
   - fiber

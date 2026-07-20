@@ -18,6 +18,14 @@ if [ ! -f "$config_path" ]; then
   echo "Copied Railway Fiber config to $config_path"
 fi
 
+# The Fiber config is persisted on the Railway volume. Keep the existing node
+# identity/database, but migrate the RUSD auto-accept threshold for Dular's
+# small-value browser wallet channels.
+if grep -q 'auto_accept_amount: 1000000000' "$config_path"; then
+  sed -i 's/auto_accept_amount: 1000000000/auto_accept_amount: 100000000/g' "$config_path"
+  echo "Migrated RUSD auto_accept_amount to 100000000 base units"
+fi
+
 if [ ! -f "$fiber_home/ckb/key" ]; then
   umask 077
   openssl rand -hex 32 > "$fiber_home/ckb/key"
